@@ -142,6 +142,11 @@ export default function App(){
   var [notifs,setNotifs]=useState([]);
   var [dataLoading,setDataLoading]=useState(false);
 
+  // ─── Persisted statuses (survive page refresh) ───
+  var [vatReturns,setVatReturns]=useState([]);
+  var [spfSubs,setSpfSubs]=useState([]);
+  var [payrollRuns,setPayrollRuns]=useState([]);
+
   // ─── Search state (must be here, before any conditional return) ───
   var [searchQ,setSearchQ]=useState("");
   var [searchOpen,setSearchOpen]=useState(false);
@@ -173,18 +178,24 @@ export default function App(){
   async function loadAllData(){
     setDataLoading(true);
     try{
-      var [empData,invData,expData,coData,notifData]=await Promise.all([
+      var [empData,invData,expData,coData,notifData,vatData,spfData,prData]=await Promise.all([
         api.getEmployees().catch(function(){return[];}),
         api.getInvoices().catch(function(){return[];}),
         api.getExpenses().catch(function(){return[];}),
         api.getCompany().catch(function(){return{nameAr:"",nameEn:"",cr:"",taxId:"",address:"",city:"",phone:"",email:""};}),
         api.getNotifications().catch(function(){return[];}),
+        api.getVATReturns().catch(function(){return[];}),
+        api.getSPFSubmissions().catch(function(){return[];}),
+        api.getPayrollRuns().catch(function(){return[];}),
       ]);
       setEmps(empData);
       setInvs(invData);
       setExps(expData);
       setCo(coData);
       setNotifs(notifData.map(function(n){return{id:n.id,msg:n.message,type:n.type==="warning"?"w":n.type==="error"?"e":"i",read:n.is_read};}));
+      setVatReturns(vatData);
+      setSpfSubs(spfData);
+      setPayrollRuns(prData);
     }catch(e){
       console.error("Failed to load data:",e);
     }
@@ -247,10 +258,10 @@ export default function App(){
 
     if(page==="invoices") return <InvPage invs={invs} reloadInvs={reloadInvs} toast={toast} co={co} showExport={showExport}/>;
     if(page==="employees") return <EmpPage emps={emps} reloadEmps={reloadEmps} toast={toast} showExport={showExport}/>;
-    if(page==="payroll") return <PayPage emps={emps} toast={toast} co={co} showExport={showExport}/>;
+    if(page==="payroll") return <PayPage emps={emps} toast={toast} co={co} showExport={showExport} payrollRuns={payrollRuns} reloadAll={loadAllData}/>;
     if(page==="expenses") return <ExpPage exps={exps} reloadExps={reloadExps} toast={toast} showExport={showExport}/>;
-    if(page==="vat") return <VATPage invs={invs} exps={exps} toast={toast} showExport={showExport}/>;
-    if(page==="spf") return <SPFPage emps={emps} toast={toast} showExport={showExport}/>;
+    if(page==="vat") return <VATPage invs={invs} exps={exps} toast={toast} showExport={showExport} vatReturns={vatReturns} reloadAll={loadAllData}/>;
+    if(page==="spf") return <SPFPage emps={emps} toast={toast} showExport={showExport} spfSubs={spfSubs} reloadAll={loadAllData}/>;
     if(page==="omanization") return <OmanPage emps={emps} toast={toast} showExport={showExport}/>;
     if(page==="reports") return <RepPage invs={invs} emps={emps} exps={exps} toast={toast} showExport={showExport}/>;
     if(page==="settings") return <SetPage co={co} setCo={setCo} lang={lang} setLang={setLang} toast={toast} emps={emps} invs={invs} exps={exps} showExport={showExport}/>;
@@ -258,17 +269,19 @@ export default function App(){
   }
 
   // ═══ LAYOUT ═══
-  return <div style={{display:"flex",minHeight:"100vh",background:C.bg,fontFamily:"'DM Sans','Segoe UI',sans-serif",color:C.txt}}>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  var isAr = lang==="ar";
+  return <div dir={isAr?"rtl":"ltr"} style={{display:"flex",minHeight:"100vh",background:C.bg,fontFamily:isAr?"'Noto Sans Arabic','Segoe UI',sans-serif":"'DM Sans','Segoe UI',sans-serif",color:C.txt}}>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Noto+Sans+Arabic:wght@400;600;700;800&display=swap" rel="stylesheet"/>
     <style>{`@keyframes spin{to{transform:rotate(360deg)}}@keyframes sIn{from{transform:translateY(10px);opacity:0}to{transform:translateY(0);opacity:1}}*{box-sizing:border-box}select option{background:${C.card};color:${C.txt}}`}</style>
     <ExportModal open={expModal.open} filename={expModal.filename} content={expModal.content} type={expModal.type} onClose={function(){setExpModal({open:false,filename:"",content:"",type:"csv"});}}/>
     <div style={{position:"fixed",bottom:24,right:24,zIndex:2000,display:"flex",flexDirection:"column",gap:8}}>{toasts.map(function(tt){return <div key={tt.id} style={{padding:"12px 20px",borderRadius:10,background:tt.type==="e"?C.r:C.g,color:"#fff",fontSize:13,fontWeight:600,boxShadow:"0 8px 24px rgba(0,0,0,.3)",animation:"sIn .3s ease",minWidth:240}}>{tt.msg}</div>;})}</div>
 
     {/* Sidebar */}
-    <div style={{width:col?62:220,background:C.bg2,borderRight:"1px solid "+C.brd,display:"flex",flexDirection:"column",transition:"width .2s",flexShrink:0}}>
+    <div style={{width:col?62:220,background:C.bg2,borderRight:isAr?"none":"1px solid "+C.brd,borderLeft:isAr?"1px solid "+C.brd:"none",display:"flex",flexDirection:"column",transition:"width .2s",flexShrink:0}}>
       <div style={{padding:col?"16px 10px":"16px 18px",borderBottom:"1px solid "+C.brd}}><div style={{display:"flex",alignItems:"center",gap:10}}><div style={{width:36,height:36,borderRadius:10,background:"linear-gradient(135deg,"+C.acc+","+C.accL+")",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><span style={{fontSize:17,fontWeight:800,color:"#fff"}}>ع</span></div>{!col&&<div><div style={{fontSize:14,fontWeight:800,color:C.txt}}>Oman ERP</div><div style={{fontSize:9,color:C.mut}}>{co.nameEn||"Loading..."}</div></div>}</div></div>
       <div style={{padding:"10px 6px",flex:1,overflowY:"auto"}}>{navItems.map(function(ni){var active=page===ni.k;return <button key={ni.k} type="button" onClick={function(){setPage(ni.k);}} style={{width:"100%",display:"flex",alignItems:"center",gap:9,padding:col?"9px 0":"9px 12px",marginBottom:1,borderRadius:8,border:"none",cursor:"pointer",background:active?C.accG:"transparent",color:active?C.acc:C.mut,fontSize:13,fontWeight:active?600:500,fontFamily:"inherit",justifyContent:col?"center":"flex-start"}}><Ic d={ni.i} s={17} c={active?C.acc:C.dim}/>{!col&&(navLabels[ni.k]||ni.k)}</button>;})}</div>
-      <div style={{padding:10,borderTop:"1px solid "+C.brd}}>
+      <div style={{padding:10,borderTop:"1px solid "+C.brd,display:"flex",flexDirection:"column",gap:6}}>
+        <button type="button" onClick={function(){setLang(lang==="ar"?"en":"ar");}} style={{width:"100%",display:"flex",alignItems:"center",justifyContent:col?"center":"flex-start",gap:8,padding:"8px 12px",borderRadius:8,border:"1px solid "+C.brd,background:C.hov,color:C.txt,fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"inherit"}}><Ic d={ic.globe} s={15} c={C.b}/>{!col&&(lang==="ar"?"English":"العربية")}</button>
         <button type="button" onClick={handleLogout} style={{width:"100%",display:"flex",alignItems:"center",justifyContent:col?"center":"flex-start",gap:8,padding:"8px 12px",borderRadius:8,border:"1px solid "+C.brd,background:C.hov,color:C.r,fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"inherit"}}><Ic d={ic.logout} s={15} c={C.r}/>{!col&&"Logout"}</button>
       </div>
     </div>
@@ -341,17 +354,20 @@ function EmpPage(p){var emps=p.emps,reloadEmps=p.reloadEmps,toast=p.toast,showEx
     <Tbl cols={[{key:"name",label:"Name",render:function(r){return <span style={{fontWeight:500}}>{r.nameEn}<br/><span style={{fontSize:11,color:C.mut}}>{r.name}</span></span>;}},{key:"nat",label:"Nationality",render:function(r){return <Badge color={r.nat==="Omani"?"g":"y"}>{r.nat}</Badge>;}},{key:"dept",label:"Department"},{key:"role",label:"Role",render:function(r){return r.roleEn;}},{key:"salary",label:"Salary",render:function(r){return fmt(r.salary);}},{key:"join",label:"Joined",render:function(r){return fD(r.join);}},{key:"act",label:"",render:function(r){return <div style={{display:"flex",gap:4}}><Btn v="ghost" s="sm" onClick={function(e){e.stopPropagation();setForm(Object.assign({},r));setEditE(r);setShowF(true);}}><Ic d={ic.edit} s={14}/></Btn><Btn v="ghost" s="sm" onClick={function(e){e.stopPropagation();setDelE(r);}}><Ic d={ic.trash} s={14} c={C.r}/></Btn></div>;}}]} data={emps}/></div>;}
 
 function PayPage(p){var emps=p.emps,toast=p.toast,co=p.co,showExport=p.showExport;
-  var [ran,setRan]=useState(false);var [slip,setSlip]=useState(null);var [busy,setBusy]=useState(false);
+  var [slip,setSlip]=useState(null);var [busy,setBusy]=useState(false);
+  var now=new Date();var curMonth=now.getMonth()+1;var curYear=now.getFullYear();
+  // Check if payroll already ran this month (persisted in DB)
+  var alreadyRan=p.payrollRuns&&p.payrollRuns.some(function(r){return r.period_month===curMonth&&r.period_year===curYear;});
   var pd=emps.map(function(e){var b=e.salary,a=e.allow,g=b+a,se=e.nat==="Omani"?b*SPF_EE:0;return Object.assign({},e,{basic:b,al:a,gross:g,spfE:se,net:g-se});});
   var tot=pd.reduce(function(s,e){return{b:s.b+e.basic,a:s.a+e.al,g:s.g+e.gross,s:s.s+e.spfE,n:s.n+e.net};},{b:0,a:0,g:0,s:0,n:0});
 
-  async function doRun(){setBusy(true);try{var now=new Date();await api.runPayroll(now.getMonth()+1,now.getFullYear());setRan(true);toast("Payroll complete");}catch(e){toast(e.message,"e");}setBusy(false);}
+  async function doRun(){setBusy(true);try{await api.runPayroll(curMonth,curYear);await p.reloadAll();toast("Payroll complete");}catch(e){toast(e.message,"e");}setBusy(false);}
   function doExport(){showExport("payroll.csv",buildCSV(["Name","Basic","Allowances","Gross","SPF","Net"],pd.map(function(e){return[e.nameEn,e.basic,e.al,e.gross,e.spfE.toFixed(3),e.net.toFixed(3)];})),"csv");}
 
   if(slip) return <div><Btn v="ghost" s="sm" onClick={function(){setSlip(null);}} style={{marginBottom:16}}>← Back</Btn>
     <div style={{background:"#fff",color:"#111",borderRadius:14,padding:36,maxWidth:700,margin:"0 auto"}}><div style={{textAlign:"center",borderBottom:"3px solid #c44530",paddingBottom:16,marginBottom:20}}><div style={{fontSize:20,fontWeight:800,color:"#c44530"}}>{co.nameAr||co.nameEn}</div><div style={{fontSize:14,fontWeight:700,marginTop:10}}>Monthly Pay Slip</div></div><div style={{fontSize:14,fontWeight:600,marginBottom:16}}>{slip.nameEn} — {slip.dept}</div><table style={{width:"100%",borderCollapse:"collapse",fontSize:13,marginBottom:16}}><tbody><tr style={{borderBottom:"1px solid #eee"}}><td style={{padding:10}}>Basic</td><td style={{padding:10,textAlign:"right"}}>{fmt(slip.basic)}</td></tr><tr style={{borderBottom:"1px solid #eee"}}><td style={{padding:10}}>Allowances</td><td style={{padding:10,textAlign:"right"}}>{fmt(slip.al)}</td></tr><tr style={{background:"#f8f8f8",fontWeight:600}}><td style={{padding:10}}>Gross</td><td style={{padding:10,textAlign:"right"}}>{fmt(slip.gross)}</td></tr><tr><td style={{padding:10,color:"#ef4444"}}>SPF 7%</td><td style={{padding:10,textAlign:"right",color:"#ef4444"}}>-{fmt(slip.spfE)}</td></tr></tbody></table><div style={{display:"flex",justifyContent:"space-between",padding:14,background:"#c44530",borderRadius:8,color:"#fff"}}><span style={{fontSize:16,fontWeight:700}}>Net Pay</span><span style={{fontSize:20,fontWeight:800}}>{fmt(slip.net)}</span></div></div></div>;
 
-  return <div><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}><h2 style={{fontSize:22,fontWeight:700,color:C.txt,margin:0}}>Payroll</h2><div style={{display:"flex",gap:8}}><Btn v="secondary" onClick={doExport}><Ic d={ic.dl} s={14}/> Export</Btn><Btn onClick={doRun} disabled={ran||busy}>{ran?"✓ Done":busy?"Running...":"Run Payroll"}</Btn></div></div>
+  return <div><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}><h2 style={{fontSize:22,fontWeight:700,color:C.txt,margin:0}}>Payroll</h2><div style={{display:"flex",gap:8}}><Btn v="secondary" onClick={doExport}><Ic d={ic.dl} s={14}/> Export</Btn><Btn onClick={doRun} disabled={alreadyRan||busy}>{alreadyRan?"✓ Done ("+curMonth+"/"+curYear+")":busy?"Running...":"Run Payroll"}</Btn></div></div>
     <div style={{display:"flex",gap:14,flexWrap:"wrap",marginBottom:24}}><SC icon={ic.dollar} label="Basic" value={fmt(tot.b)} color={C.b}/><SC icon={ic.card} label="Allowances" value={fmt(tot.a)} color={C.g}/><SC icon={ic.shield} label="SPF Ded." value={fmt(tot.s)} color={C.gld}/><SC icon={ic.wallet} label="Net Pay" value={fmt(tot.n)} color={C.acc}/></div>
     <Tbl cols={[{key:"name",label:"Name",render:function(r){return <span style={{fontWeight:500}}>{r.nameEn}</span>;}},{key:"dept",label:"Department"},{key:"basic",label:"Basic",render:function(r){return fmt(r.basic);}},{key:"gross",label:"Gross",render:function(r){return <strong>{fmt(r.gross)}</strong>;}},{key:"spf",label:"SPF",render:function(r){return r.nat==="Omani"?<span style={{color:C.r}}>-{fmt(r.spfE)}</span>:"—";}},{key:"net",label:"Net",render:function(r){return <strong style={{color:C.g}}>{fmt(r.net)}</strong>;}},{key:"a",label:"",render:function(r){return <Btn v="ghost" s="sm" onClick={function(e){e.stopPropagation();setSlip(r);}}>Pay Slip</Btn>;}}]} data={pd}/></div>;}
 
@@ -367,23 +383,35 @@ function ExpPage(p){var exps=p.exps,reloadExps=p.reloadExps,toast=p.toast,showEx
     <Tbl cols={[{key:"d",label:"Description",render:function(r){return r.descEn;}},{key:"amount",label:"Amount",render:function(r){return <strong>{fmt(r.amount)}</strong>;}},{key:"cat",label:"Category",render:function(r){return <Badge color="b">{r.cat}</Badge>;}},{key:"vendor",label:"Vendor"},{key:"date",label:"Date",render:function(r){return fD(r.date);}},{key:"a",label:"",render:function(r){return <Btn v="ghost" s="sm" onClick={function(e){e.stopPropagation();doDel(r.id);}}><Ic d={ic.trash} s={14} c={C.r}/></Btn>;}}]} data={exps}/></div>;}
 
 function VATPage(p){var invs=p.invs,exps=p.exps,toast=p.toast,showExport=p.showExport;
-  var [ck,setCk]=useState({reg:true,inv:true,ret:false,pay:false,rec:true});var [busy,setBusy]=useState(false);
+  var curPeriod="Q"+Math.ceil((new Date().getMonth()+1)/3)+"-"+new Date().getFullYear();
+  // Check if already submitted this quarter (persisted in DB)
+  var alreadySubmitted=p.vatReturns&&p.vatReturns.some(function(r){return r.period===curPeriod;});
+  var alreadyPaid=p.vatReturns&&p.vatReturns.some(function(r){return r.period===curPeriod&&r.status==="paid";});
+  var [ck,setCk]=useState({reg:true,inv:true,ret:alreadySubmitted,pay:alreadyPaid,rec:true});var [busy,setBusy]=useState(false);
   var oV=invs.reduce(function(s,i){return s+iVat(i);},0);var iV=exps.filter(function(e){return e.vatI;}).reduce(function(s,e){return s+(e.amount/1.05)*0.05;},0);var net=oV-iV;
-  async function doSubmit(){setBusy(true);try{await api.submitVATReturn({period:"Q1-2025",taxable_sales:(oV/VAT).toFixed(3),output_vat:oV.toFixed(3),input_vat:iV.toFixed(3),net_payable:net.toFixed(3)});setCk(Object.assign({},ck,{ret:true}));toast("VAT Return submitted");}catch(e){toast(e.message,"e");}setBusy(false);}
+  async function doSubmit(){setBusy(true);try{await api.submitVATReturn({period:curPeriod,taxable_sales:(oV/VAT).toFixed(3),output_vat:oV.toFixed(3),input_vat:iV.toFixed(3),net_payable:net.toFixed(3)});await p.reloadAll();setCk(Object.assign({},ck,{ret:true}));toast("VAT Return submitted for "+curPeriod);}catch(e){toast(e.message,"e");}setBusy(false);}
   return <div><h2 style={{fontSize:22,fontWeight:700,color:C.txt,margin:"0 0 20px"}}>VAT Compliance</h2>
     <div style={{display:"flex",gap:14,flexWrap:"wrap",marginBottom:24}}><SC icon={ic.dollar} label="Output VAT" value={fmt(oV)} color={C.acc}/><SC icon={ic.dollar} label="Input VAT" value={fmt(iV)} color={C.b}/><SC icon={ic.dollar} label="Net VAT" value={fmt(net)} color={net>0?C.r:C.g}/></div>
     <div style={{background:C.card,border:"1px solid "+C.brd,borderRadius:14,padding:24,marginBottom:20}}><h3 style={{fontSize:15,fontWeight:700,color:C.txt,marginBottom:16}}>VAT Return</h3>
       {[{l:"Taxable Sales",v:fmt(oV/VAT)},{l:"Output VAT 5%",v:fmt(oV),h:true},{l:"Deductible Input",v:fmt(iV)},{l:"Net Payable",v:fmt(net),h:true,b:true}].map(function(r,i){return <div key={i} style={{display:"flex",justifyContent:"space-between",padding:"11px 14px",background:r.h?C.accG:i%2===0?C.hov:"transparent",borderRadius:6,marginBottom:2}}><span style={{fontSize:13,color:C.txt,fontWeight:r.b?700:400}}>{r.l}</span><span style={{fontSize:r.b?16:14,fontWeight:r.b?800:600,color:r.b?C.acc:C.txt}}>{r.v}</span></div>;})}
-      <div style={{display:"flex",gap:8,marginTop:18}}><Btn onClick={function(){showExport("vat-return.json",buildJSON({taxable_sales:(oV/VAT),output_vat:oV,input_vat:iV,net_payable:net}),"json");}}><Ic d={ic.dl} s={14} c="#fff"/> Download</Btn><Btn v="secondary" onClick={doSubmit} disabled={ck.ret||busy}>{ck.ret?"✓ Submitted":busy?"Submitting...":"Submit"}</Btn>{ck.ret&&!ck.pay&&<Btn v="success" onClick={function(){setCk(Object.assign({},ck,{pay:true}));toast("Payment recorded");}}>Payment Done</Btn>}</div></div>
+      <div style={{display:"flex",gap:8,marginTop:18}}><Btn onClick={function(){showExport("vat-return.json",buildJSON({period:curPeriod,taxable_sales:(oV/VAT),output_vat:oV,input_vat:iV,net_payable:net}),"json");}}><Ic d={ic.dl} s={14} c="#fff"/> Download</Btn><Btn v="secondary" onClick={doSubmit} disabled={alreadySubmitted||busy}>{alreadySubmitted?"✓ Submitted ("+curPeriod+")":busy?"Submitting...":"Submit "+curPeriod}</Btn>{(alreadySubmitted||ck.ret)&&!alreadyPaid&&<Btn v="success" onClick={function(){setCk(Object.assign({},ck,{pay:true}));toast("Payment recorded");}}>Payment Done</Btn>}</div></div>
     <div style={{background:C.card,border:"1px solid "+C.brd,borderRadius:14,padding:24}}><h3 style={{fontSize:15,fontWeight:700,color:C.txt,marginBottom:14}}>Checklist</h3>{[{k:"reg",l:"Tax Registered"},{k:"inv",l:"Invoices OK"},{k:"ret",l:"Return Filed"},{k:"pay",l:"Payment Done"},{k:"rec",l:"Records Kept"}].map(function(item,i){return <div key={i} onClick={function(){var u={};u[item.k]=!ck[item.k];setCk(Object.assign({},ck,u));}} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 0",borderBottom:i<4?"1px solid "+C.brd:"none",cursor:"pointer"}}><div style={{width:22,height:22,borderRadius:6,display:"flex",alignItems:"center",justifyContent:"center",background:ck[item.k]?C.gB:C.hov,border:"1px solid "+(ck[item.k]?C.gD:C.brd)}}>{ck[item.k]&&<Ic d={ic.check} s={12} c={C.g}/>}</div><span style={{fontSize:13,color:ck[item.k]?C.txt:C.mut}}>{item.l}</span></div>;})}</div></div>;}
 
 function SPFPage(p){var emps=p.emps,toast=p.toast,showExport=p.showExport;
-  var [sub,setSub]=useState(false);var om=emps.filter(function(e){return e.nat==="Omani";});var ts=om.reduce(function(s,e){return s+e.salary;},0);var er=ts*SPF_ER,ee=ts*SPF_EE,gv=ts*SPF_GV;
+  var [busy,setBusy]=useState(false);var om=emps.filter(function(e){return e.nat==="Omani";});var ts=om.reduce(function(s,e){return s+e.salary;},0);var er=ts*SPF_ER,ee=ts*SPF_EE,gv=ts*SPF_GV;
+  var now=new Date();var curMonth=now.getMonth()+1;var curYear=now.getFullYear();
+  // Check if already submitted this month (persisted in DB)
+  var alreadySub=p.spfSubs&&p.spfSubs.some(function(s){return s.period_month===curMonth&&s.period_year===curYear;});
+
+  async function doSubmit(){setBusy(true);try{await api.submitSPF({month:curMonth,year:curYear,employer:er,employee:ee,government:gv,total:er+ee+gv,eligible_count:om.length});await p.reloadAll();toast("SPF submitted for "+curMonth+"/"+curYear);}catch(e){toast(e.message,"e");}setBusy(false);}
   return <div><h2 style={{fontSize:22,fontWeight:700,color:C.txt,margin:"0 0 20px"}}>Social Protection Fund</h2>
     <div style={{display:"flex",gap:14,flexWrap:"wrap",marginBottom:24}}><SC icon={ic.shield} label="Employer" value={fmt(er)} sub={(SPF_ER*100).toFixed(2)+"%" } color={C.acc}/><SC icon={ic.shield} label="Employee" value={fmt(ee)} sub={SPF_EE*100+"%"} color={C.b}/><SC icon={ic.shield} label="Government" value={fmt(gv)} sub={(SPF_GV*100).toFixed(2)+"%"} color={C.g}/><SC icon={ic.shield} label="Monthly Total" value={fmt(er+ee+gv)} sub={om.length+" eligible"} color={C.gld}/></div>
     <div style={{background:C.card,border:"1px solid "+C.brd,borderRadius:14,padding:24}}>
       <Tbl cols={[{key:"n",label:"Name",render:function(r){return <span style={{fontWeight:500}}>{r.nameEn}</span>;}},{key:"spf",label:"SPF #"},{key:"s",label:"Salary",render:function(r){return fmt(r.salary);}},{key:"er",label:"ER Share",render:function(r){return fmt(r.salary*SPF_ER);}},{key:"ee",label:"EE Share",render:function(r){return fmt(r.salary*SPF_EE);}},{key:"tot",label:"Total",render:function(r){return <strong>{fmt(r.salary*(SPF_ER+SPF_EE))}</strong>;}}]} data={om}/>
-      <div style={{display:"flex",gap:8,marginTop:18}}><Btn onClick={function(){showExport("spf.csv",buildCSV(["Name","SPF#","Salary","ER","EE","Total"],om.map(function(e){return[e.nameEn,e.spf,e.salary,(e.salary*SPF_ER).toFixed(3),(e.salary*SPF_EE).toFixed(3),(e.salary*(SPF_ER+SPF_EE)).toFixed(3)];})),"csv");}}><Ic d={ic.dl} s={14} c="#fff"/> Export SPF</Btn><Btn v="secondary" onClick={function(){setSub(true);toast("Submitted");}} disabled={sub}>{sub?"✓ Submitted":"Submit SPF"}</Btn></div>
+      <div style={{display:"flex",gap:8,marginTop:18}}>
+        <Btn onClick={function(){showExport("spf.csv",buildCSV(["Name","SPF#","Salary","ER","EE","Total"],om.map(function(e){return[e.nameEn,e.spf,e.salary,(e.salary*SPF_ER).toFixed(3),(e.salary*SPF_EE).toFixed(3),(e.salary*(SPF_ER+SPF_EE)).toFixed(3)];})),"csv");}}><Ic d={ic.dl} s={14} c="#fff"/> Export SPF</Btn>
+        <Btn v="secondary" onClick={doSubmit} disabled={alreadySub||busy}>{alreadySub?"✓ Submitted ("+curMonth+"/"+curYear+")":busy?"Submitting...":"Submit SPF"}</Btn>
+      </div>
     </div></div>;}
 
 function OmanPage(p){var emps=p.emps,toast=p.toast,showExport=p.showExport;

@@ -314,3 +314,20 @@ export async function getNotifications() {
 export async function markNotificationsRead() {
   return req("PATCH", "/api/notifications/read");
 }
+
+// ─── STATUS CHECKS (persist across refresh) ─────────────────
+export async function getVATReturns() {
+  return req("GET", "/api/vat/returns");
+}
+
+export async function getSPFSubmissions() {
+  return req("GET", "/api/spf/submissions");
+}
+
+export async function submitSPF(data) {
+  return req("POST", "/api/spf/submit", data);
+}
+
+export async function getPayrollRuns() {
+  return req("GET", "/api/payroll/runs");
+}

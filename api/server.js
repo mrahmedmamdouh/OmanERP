@@ -449,6 +449,52 @@ app.put('/api/company', auth(['owner','admin']), async (req, res) => {
   res.json(rows[0]);
 });
 
+// ─── STATUS ENDPOINTS (persist across refresh) ──────────────
+app.get('/api/vat/returns', auth(), async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      'SELECT * FROM vat_returns WHERE company_id = $1 ORDER BY created_at DESC',
+      [req.user.company_id]
+    );
+    res.json(rows);
+  } catch (err) { res.json([]); }
+});
+
+app.get('/api/spf/submissions', auth(), async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      'SELECT * FROM spf_submissions WHERE company_id = $1 ORDER BY created_at DESC',
+      [req.user.company_id]
+    );
+    res.json(rows);
+  } catch (err) { res.json([]); }
+});
+
+app.post('/api/spf/submit', auth(['owner','admin','accountant']), async (req, res) => {
+  try {
+    const b = req.body;
+    const { rows } = await pool.query(
+      `INSERT INTO spf_submissions (company_id, period_month, period_year, total_employer, total_employee, total_government, total_amount, eligible_count, status, submitted_at)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,'submitted',NOW()) RETURNING *`,
+      [req.user.company_id, b.month, b.year, b.employer, b.employee, b.government, b.total, b.eligible_count]
+    );
+    res.status(201).json(rows[0]);
+  } catch (err) {
+    if (err.code === '23505') return res.status(409).json({ error: 'Already submitted for this period' });
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/payroll/runs', auth(), async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      'SELECT * FROM payroll_runs WHERE company_id = $1 ORDER BY period_year DESC, period_month DESC',
+      [req.user.company_id]
+    );
+    res.json(rows);
+  } catch (err) { res.json([]); }
+});
+
 // ─── NOTIFICATIONS ──────────────────────────────────────────
 app.get('/api/notifications', auth(), async (req, res) => {
   const { rows } = await pool.query(
