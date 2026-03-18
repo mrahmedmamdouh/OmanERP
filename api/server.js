@@ -95,18 +95,33 @@ function auth(requiredRoles) {
   };
 }
 
+// ─── UUID HELPER ────────────────────────────────────────────
+function isUUID(s) {
+  return typeof s === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s);
+}
+
+// Resolve an invoice param — could be UUID or invoice_number like "INV-2025-0001"
+async function resolveInvoiceId(param, companyId) {
+  if (isUUID(param)) return param;
+  const { rows } = await pool.query(
+    'SELECT id FROM invoices WHERE invoice_number=$1 AND company_id=$2',
+    [param, companyId]
+  );
+  return rows.length > 0 ? rows[0].id : null;
+}
+
 // ─── AUDIT HELPER ───────────────────────────────────────────
 async function audit(companyId, userId, action, entityType, entityId, details, ip) {
   try {
-    // Sanitize IP — INET type needs valid format or null
     let cleanIp = null;
     if (ip && /^[\d.:a-f]+$/i.test(ip)) cleanIp = ip.replace('::ffff:', '');
+    const safeEntityId = isUUID(entityId) ? entityId : null;
     await pool.query(
       'INSERT INTO audit_log (company_id, user_id, action, entity_type, entity_id, details, ip_address) VALUES ($1,$2,$3,$4,$5,$6,$7)',
-      [companyId, userId, action, entityType, entityId, JSON.stringify(details || {}), cleanIp]
+      [companyId, userId, action, entityType, safeEntityId, JSON.stringify(details || {}), cleanIp]
     );
   } catch (err) {
-    console.error('[AUDIT ERROR]', err.message); // Log but never throw
+    console.error('[AUDIT ERROR]', err.message);
   }
 }
 
@@ -194,21 +209,33 @@ app.post('/api/employees', auth(['owner','admin','hr']), async (req, res) => {
 });
 
 app.put('/api/employees/:id', auth(['owner','admin','hr']), async (req, res) => {
-  const b = req.body;
-  const { rows } = await pool.query(
-    `UPDATE employees SET name_ar=$1, name_en=$2, nationality=$3, department=$4, role_title_en=$5, basic_salary=$6, allowances=$7, email=$8, phone=$9, bank_name=$10, iban=$11
-     WHERE id=$12 AND company_id=$13 RETURNING *`,
-    [b.name_ar, b.name_en, b.nationality, b.department, b.role_title_en, b.basic_salary, b.allowances, b.email, b.phone, b.bank_name, b.iban, req.params.id, req.user.company_id]
-  );
-  if (rows.length === 0) return res.status(404).json({ error: 'Not found' });
-  await audit(req.user.company_id, req.user.id, 'update', 'employee', req.params.id, b, req.ip);
-  res.json(rows[0]);
+  try {
+    if (!isUUID(req.params.id)) return res.status(400).json({ error: 'Invalid employee ID format' });
+    const b = req.body;
+    const { rows } = await pool.query(
+      `UPDATE employees SET name_ar=$1, name_en=$2, nationality=$3, department=$4, role_title_en=$5, basic_salary=$6, allowances=$7, email=$8, phone=$9, bank_name=$10, iban=$11
+       WHERE id=$12 AND company_id=$13 RETURNING *`,
+      [b.name_ar, b.name_en, b.nationality, b.department, b.role_title_en, b.basic_salary, b.allowances, b.email, b.phone, b.bank_name, b.iban, req.params.id, req.user.company_id]
+    );
+    if (rows.length === 0) return res.status(404).json({ error: 'Not found' });
+    await audit(req.user.company_id, req.user.id, 'update', 'employee', req.params.id, b, req.ip);
+    res.json(rows[0]);
+  } catch (err) {
+    console.error('[EMP UPDATE ERROR]', err.message);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.delete('/api/employees/:id', auth(['owner','admin','hr']), async (req, res) => {
-  await pool.query("UPDATE employees SET status='terminated', termination_date=CURRENT_DATE WHERE id=$1 AND company_id=$2", [req.params.id, req.user.company_id]);
-  await audit(req.user.company_id, req.user.id, 'delete', 'employee', req.params.id, {}, req.ip);
-  res.json({ success: true });
+  try {
+    if (!isUUID(req.params.id)) return res.status(400).json({ error: 'Invalid employee ID format' });
+    await pool.query("UPDATE employees SET status='terminated', termination_date=CURRENT_DATE WHERE id=$1 AND company_id=$2", [req.params.id, req.user.company_id]);
+    await audit(req.user.company_id, req.user.id, 'delete', 'employee', req.params.id, {}, req.ip);
+    res.json({ success: true });
+  } catch (err) {
+    console.error('[EMP DELETE ERROR]', err.message);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // ═══════════════════════════════════════════════════════════════
@@ -267,21 +294,35 @@ app.post('/api/invoices', auth(['owner','admin','accountant']), async (req, res)
 });
 
 app.patch('/api/invoices/:id/status', auth(['owner','admin','accountant']), async (req, res) => {
-  const { status } = req.body;
-  const paidDate = status === 'paid' ? new Date() : null;
-  const { rows } = await pool.query(
-    'UPDATE invoices SET status=$1, paid_date=$2 WHERE id=$3 AND company_id=$4 RETURNING *',
-    [status, paidDate, req.params.id, req.user.company_id]
-  );
-  if (rows.length === 0) return res.status(404).json({ error: 'Not found' });
-  await audit(req.user.company_id, req.user.id, 'update', 'invoice', req.params.id, { status }, req.ip);
-  res.json(rows[0]);
+  try {
+    const { status } = req.body;
+    const paidDate = status === 'paid' ? new Date() : null;
+    const realId = await resolveInvoiceId(req.params.id, req.user.company_id);
+    if (!realId) return res.status(404).json({ error: 'Invoice not found' });
+    const { rows } = await pool.query(
+      'UPDATE invoices SET status=$1, paid_date=$2 WHERE id=$3 AND company_id=$4 RETURNING *',
+      [status, paidDate, realId, req.user.company_id]
+    );
+    if (rows.length === 0) return res.status(404).json({ error: 'Not found' });
+    await audit(req.user.company_id, req.user.id, 'update', 'invoice', realId, { status }, req.ip);
+    res.json(rows[0]);
+  } catch (err) {
+    console.error('[INVOICE STATUS ERROR]', err.message);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.delete('/api/invoices/:id', auth(['owner','admin']), async (req, res) => {
-  await pool.query('DELETE FROM invoices WHERE id=$1 AND company_id=$2', [req.params.id, req.user.company_id]);
-  await audit(req.user.company_id, req.user.id, 'delete', 'invoice', req.params.id, {}, req.ip);
-  res.json({ success: true });
+  try {
+    const realId = await resolveInvoiceId(req.params.id, req.user.company_id);
+    if (!realId) return res.status(404).json({ error: 'Invoice not found' });
+    await pool.query('DELETE FROM invoices WHERE id=$1 AND company_id=$2', [realId, req.user.company_id]);
+    await audit(req.user.company_id, req.user.id, 'delete', 'invoice', realId, {}, req.ip);
+    res.json({ success: true });
+  } catch (err) {
+    console.error('[INVOICE DELETE ERROR]', err.message);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // ═══════════════════════════════════════════════════════════════
@@ -304,8 +345,14 @@ app.post('/api/expenses', auth(['owner','admin','accountant']), async (req, res)
 });
 
 app.delete('/api/expenses/:id', auth(['owner','admin','accountant']), async (req, res) => {
-  await pool.query('DELETE FROM expenses WHERE id=$1 AND company_id=$2', [req.params.id, req.user.company_id]);
-  res.json({ success: true });
+  try {
+    if (!isUUID(req.params.id)) return res.status(400).json({ error: 'Invalid expense ID format' });
+    await pool.query('DELETE FROM expenses WHERE id=$1 AND company_id=$2', [req.params.id, req.user.company_id]);
+    res.json({ success: true });
+  } catch (err) {
+    console.error('[EXP DELETE ERROR]', err.message);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // ═══════════════════════════════════════════════════════════════
