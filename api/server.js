@@ -18,10 +18,18 @@ const PORT = process.env.PORT || 3001;
 // ─── DATABASE ───────────────────────────────────────────────
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-  max: 20,
+  ssl: process.env.DATABASE_URL && process.env.DATABASE_URL.includes('supabase')
+    ? { rejectUnauthorized: false }
+    : (process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false),
+  max: 10,
   idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 10000,
 });
+
+// Test DB connection on startup
+pool.query('SELECT NOW()')
+  .then(() => console.log('[ERP API] Database connected'))
+  .catch(err => console.error('[ERP API] Database connection FAILED:', err.message));
 
 // ─── MIDDLEWARE ──────────────────────────────────────────────
 app.set('trust proxy', 1);
@@ -89,10 +97,17 @@ function auth(requiredRoles) {
 
 // ─── AUDIT HELPER ───────────────────────────────────────────
 async function audit(companyId, userId, action, entityType, entityId, details, ip) {
-  await pool.query(
-    'INSERT INTO audit_log (company_id, user_id, action, entity_type, entity_id, details, ip_address) VALUES ($1,$2,$3,$4,$5,$6,$7)',
-    [companyId, userId, action, entityType, entityId, JSON.stringify(details), ip]
-  );
+  try {
+    // Sanitize IP — INET type needs valid format or null
+    let cleanIp = null;
+    if (ip && /^[\d.:a-f]+$/i.test(ip)) cleanIp = ip.replace('::ffff:', '');
+    await pool.query(
+      'INSERT INTO audit_log (company_id, user_id, action, entity_type, entity_id, details, ip_address) VALUES ($1,$2,$3,$4,$5,$6,$7)',
+      [companyId, userId, action, entityType, entityId, JSON.stringify(details || {}), cleanIp]
+    );
+  } catch (err) {
+    console.error('[AUDIT ERROR]', err.message); // Log but never throw
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -101,6 +116,8 @@ async function audit(companyId, userId, action, entityType, entityId, details, i
 app.post('/api/auth/login', async (req, res) => {
   try {
     const { email, password } = req.body;
+    if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
+    
     const { rows } = await pool.query('SELECT * FROM users WHERE email = $1 AND is_active = true', [email]);
     if (rows.length === 0) return res.status(401).json({ error: 'Invalid credentials' });
     
@@ -115,19 +132,23 @@ app.post('/api/auth/login', async (req, res) => {
     
     res.json({ token, user: { id: user.id, email: user.email, name_en: user.name_en, name_ar: user.name_ar, role: user.role, lang: user.lang, company_id: user.company_id } });
   } catch (err) {
-    res.status(500).json({ error: 'Server error' });
+    console.error('[LOGIN ERROR]', err.message);
+    res.status(500).json({ error: 'Login failed: ' + err.message });
   }
 });
 
 app.post('/api/auth/register', async (req, res) => {
   try {
     const { email, password, name_en, name_ar, company_name_ar, company_name_en, cr_number, tax_id } = req.body;
+    if (!email || !password || !name_en || !company_name_en) {
+      return res.status(400).json({ error: 'Required: email, password, name_en, company_name_en' });
+    }
     
     // Create company
     const companyId = uuidv4();
     await pool.query(
       'INSERT INTO companies (id, name_ar, name_en, cr_number, tax_id) VALUES ($1,$2,$3,$4,$5)',
-      [companyId, company_name_ar, company_name_en, cr_number, tax_id]
+      [companyId, company_name_ar || company_name_en, company_name_en, cr_number || null, tax_id || null]
     );
     
     // Create owner user
@@ -135,14 +156,15 @@ app.post('/api/auth/register', async (req, res) => {
     const userId = uuidv4();
     await pool.query(
       'INSERT INTO users (id, company_id, email, password_hash, name_en, name_ar, role) VALUES ($1,$2,$3,$4,$5,$6,$7)',
-      [userId, companyId, email, hash, name_en, name_ar, 'owner']
+      [userId, companyId, email, hash, name_en, name_ar || name_en, 'owner']
     );
     
     const token = jwt.sign({ userId, companyId, role: 'owner' }, process.env.JWT_SECRET, { expiresIn: '24h' });
     res.status(201).json({ token, user: { id: userId, email, name_en, role: 'owner', company_id: companyId } });
   } catch (err) {
+    console.error('[REGISTER ERROR]', err.message);
     if (err.code === '23505') return res.status(409).json({ error: 'Email or company already exists' });
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: 'Registration failed: ' + err.message });
   }
 });
 
@@ -447,7 +469,43 @@ app.get('/api/health', async (req, res) => {
     await pool.query('SELECT 1');
     res.json({ status: 'healthy', timestamp: new Date().toISOString() });
   } catch (err) {
-    res.status(503).json({ status: 'unhealthy' });
+    res.status(503).json({ status: 'unhealthy', error: err.message });
+  }
+});
+
+// Diagnostic — check if DB tables exist (remove this in production)
+app.get('/api/debug', async (req, res) => {
+  const checks = {};
+  try {
+    // 1. DB connection
+    await pool.query('SELECT 1');
+    checks.db_connected = true;
+    
+    // 2. Check if tables exist
+    const { rows: tables } = await pool.query(
+      "SELECT tablename FROM pg_tables WHERE schemaname = 'public' ORDER BY tablename"
+    );
+    checks.tables = tables.map(t => t.tablename);
+    checks.tables_count = tables.length;
+    checks.schema_loaded = tables.length >= 10;
+    
+    // 3. Check if seed user exists
+    const { rows: users } = await pool.query('SELECT email, role FROM users LIMIT 5');
+    checks.users = users;
+    checks.has_seed_user = users.some(u => u.email === 'admin@futuretech.om');
+    
+    // 4. Env check
+    checks.env = {
+      NODE_ENV: process.env.NODE_ENV || 'not set',
+      DATABASE_URL: process.env.DATABASE_URL ? 'set (' + process.env.DATABASE_URL.substring(0, 30) + '...)' : 'NOT SET',
+      JWT_SECRET: process.env.JWT_SECRET ? 'set' : 'NOT SET',
+      FRONTEND_URL: process.env.FRONTEND_URL || 'not set',
+    };
+    
+    res.json(checks);
+  } catch (err) {
+    checks.error = err.message;
+    res.status(500).json(checks);
   }
 });
 
