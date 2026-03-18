@@ -2,7 +2,7 @@
 // API Client — maps every frontend action to a backend endpoint
 // ═══════════════════════════════════════════════════════════════
 
-const BASE = import.meta.env.VITE_API_URL || "http://localhost:3001";
+const BASE = (import.meta.env.VITE_API_URL || "").replace(/\/+$/, "");
 
 let _token = null;
 export function setToken(t) { _token = t; }
@@ -10,15 +10,29 @@ export function getToken() { return _token; }
 export function clearToken() { _token = null; }
 
 async function req(method, path, body) {
+  const url = BASE + path;
   const headers = { "Content-Type": "application/json" };
   if (_token) headers["Authorization"] = "Bearer " + _token;
-  const res = await fetch(BASE + path, {
-    method,
-    headers,
-    body: body ? JSON.stringify(body) : undefined,
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || "Request failed");
+
+  let res;
+  try {
+    res = await fetch(url, {
+      method,
+      headers,
+      body: body ? JSON.stringify(body) : undefined,
+    });
+  } catch (networkErr) {
+    throw new Error("Cannot reach server. Check VITE_API_URL (" + (BASE || "empty") + ")");
+  }
+
+  let data;
+  try {
+    data = await res.json();
+  } catch (parseErr) {
+    throw new Error("Server returned invalid response (status " + res.status + ")");
+  }
+
+  if (!res.ok) throw new Error(data.error || "Request failed (status " + res.status + ")");
   return data;
 }
 

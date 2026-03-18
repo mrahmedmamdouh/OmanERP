@@ -24,9 +24,40 @@ const pool = new Pool({
 });
 
 // ─── MIDDLEWARE ──────────────────────────────────────────────
-app.set('trust proxy', 1); // Required behind Render/Vercel/Nginx reverse proxy
-app.use(helmet());
-app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:3000', credentials: true }));
+app.set('trust proxy', 1);
+
+// CORS — must come BEFORE helmet
+const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:3000')
+  .split(',')
+  .map(s => s.trim());
+
+app.use(cors({
+  origin: function(origin, callback) {
+    // Allow requests with no origin (mobile apps, curl, Postman, health checks)
+    if (!origin) return callback(null, true);
+    // Allow any localhost during development
+    if (origin.includes('localhost') || origin.includes('127.0.0.1')) return callback(null, true);
+    // Allow configured origins
+    if (allowedOrigins.some(allowed => origin.startsWith(allowed))) return callback(null, true);
+    // Allow any .vercel.app domain (for preview deploys)
+    if (origin.endsWith('.vercel.app')) return callback(null, true);
+    callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
+
+// Handle preflight explicitly
+app.options('*', cors());
+
+// Helmet — configured to not block cross-origin requests
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+  crossOriginOpenerPolicy: false,
+  crossOriginEmbedderPolicy: false,
+}));
+
 app.use(express.json({ limit: '10mb' }));
 app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 200 }));
 
@@ -420,10 +451,21 @@ app.get('/api/health', async (req, res) => {
   }
 });
 
+// ─── GLOBAL ERROR HANDLER ────────────────────────────────────
+app.use((err, req, res, next) => {
+  console.error('[ERP API] Error:', err.message);
+  if (err.message === 'Not allowed by CORS') {
+    return res.status(403).json({ error: 'CORS: Origin not allowed. Set FRONTEND_URL env var.' });
+  }
+  res.status(500).json({ error: 'Internal server error' });
+});
+
 // ─── START SERVER ───────────────────────────────────────────
 app.listen(PORT, () => {
   console.log(`[ERP API] Running on port ${PORT}`);
   console.log(`[ERP API] Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`[ERP API] CORS origins: ${process.env.FRONTEND_URL || 'http://localhost:3000'}`);
+  console.log(`[ERP API] Database: ${process.env.DATABASE_URL ? 'configured' : 'NOT SET'}`);
 });
 
 module.exports = app;

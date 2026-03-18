@@ -112,6 +112,9 @@ function LoginPage(p){
       <div style={{textAlign:"center",marginTop:16,fontSize:11,color:C.dim}}>
         Demo: admin@futuretech.om / admin123
       </div>
+      {!import.meta.env.VITE_API_URL && <div style={{textAlign:"center",marginTop:12,padding:"8px 12px",background:C.rB,border:"1px solid "+C.rD,borderRadius:8,fontSize:11,color:C.r}}>
+        ⚠ VITE_API_URL not set. Add your Render API URL in Vercel → Settings → Environment Variables.
+      </div>}
     </div>
   </div>;
 }
