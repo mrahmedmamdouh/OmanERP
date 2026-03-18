@@ -142,6 +142,10 @@ export default function App(){
   var [notifs,setNotifs]=useState([]);
   var [dataLoading,setDataLoading]=useState(false);
 
+  // ─── Search state (must be here, before any conditional return) ───
+  var [searchQ,setSearchQ]=useState("");
+  var [searchOpen,setSearchOpen]=useState(false);
+
   // ─── Export modal state ───
   var [expModal,setExpModal]=useState({open:false,filename:"",content:"",type:"csv"});
   function showExport(fn,content,type){setExpModal({open:true,filename:fn,content:content,type:type||"csv"});}
@@ -192,9 +196,12 @@ export default function App(){
   async function reloadInvs(){try{setInvs(await api.getInvoices());}catch(e){}}
   async function reloadExps(){try{setExps(await api.getExpenses());}catch(e){}}
 
+  // ─── Search results (must be before any conditional return) ───
+  var sr=useMemo(function(){if(!searchQ.trim())return[];var q=searchQ.toLowerCase(),r=[];emps.forEach(function(e){if(e.nameEn.toLowerCase().indexOf(q)>=0)r.push({l:e.nameEn,s:e.roleEn,p:"employees"});});invs.forEach(function(inv){if(inv.id.toLowerCase().indexOf(q)>=0||inv.clientEn.toLowerCase().indexOf(q)>=0)r.push({l:inv.id,s:inv.clientEn,p:"invoices"});});return r.slice(0,5);},[searchQ,emps,invs]);
+
   // ─── Check auth on mount ───
   useEffect(function(){
-    setAuthLoading(false); // No persisted session in this version — user must log in
+    setAuthLoading(false);
   },[]);
 
   // ─── If not logged in, show login ───
@@ -206,10 +213,6 @@ export default function App(){
   // ─── Navigation ───
   var navItems=[{k:"dashboard",i:ic.home},{k:"invoices",i:ic.file},{k:"employees",i:ic.users},{k:"payroll",i:ic.card},{k:"expenses",i:ic.wallet},{k:"vat",i:ic.dollar},{k:"spf",i:ic.shield},{k:"omanization",i:ic.flag},{k:"reports",i:ic.chart},{k:"settings",i:ic.gear}];
   var navLabels={dashboard:"Dashboard",invoices:"Invoices",employees:"Employees",payroll:"Payroll",expenses:"Expenses",vat:"VAT",spf:"SPF",omanization:"Omanization",reports:"Reports",settings:"Settings"};
-
-  // ─── Search ───
-  var [searchQ,setSearchQ]=useState("");var [searchOpen,setSearchOpen]=useState(false);
-  var sr=useMemo(function(){if(!searchQ.trim())return[];var q=searchQ.toLowerCase(),r=[];emps.forEach(function(e){if(e.nameEn.toLowerCase().indexOf(q)>=0)r.push({l:e.nameEn,s:e.roleEn,p:"employees"});});invs.forEach(function(inv){if(inv.id.toLowerCase().indexOf(q)>=0||inv.clientEn.toLowerCase().indexOf(q)>=0)r.push({l:inv.id,s:inv.clientEn,p:"invoices"});});return r.slice(0,5);},[searchQ,emps,invs]);
 
   // ═══ PAGE ROUTER ═══
   function renderPage(){
