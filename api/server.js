@@ -24,6 +24,7 @@ const pool = new Pool({
 });
 
 // ─── MIDDLEWARE ──────────────────────────────────────────────
+app.set('trust proxy', 1); // Required behind Render/Vercel/Nginx reverse proxy
 app.use(helmet());
 app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:3000', credentials: true }));
 app.use(express.json({ limit: '10mb' }));
