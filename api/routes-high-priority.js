@@ -481,4 +481,88 @@ app.get('/api/stock-alerts', auth(), async (req, res) => {
   } catch (err) { res.json([]); }
 });
 
+// ─── BULK IMPORTS FOR NEW ENTITIES ──────────────────────────
+app.post('/api/contacts/import', auth(['owner','admin','accountant']), async (req, res) => {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const items = req.body.items || []; let created = 0;
+    for (const b of items) {
+      if (!b.name_en) continue;
+      await client.query(
+        'INSERT INTO contacts (id,company_id,contact_type,name_en,name_ar,email,phone,city,payment_terms) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)',
+        [uuidv4(), req.user.company_id, b.contact_type||'customer', b.name_en, b.name_ar||'', b.email||'', b.phone||'', b.city||'', parseInt(b.payment_terms)||30]
+      );
+      created++;
+    }
+    await client.query('COMMIT');
+    res.status(201).json({ success: true, imported: created });
+  } catch (err) { await client.query('ROLLBACK'); res.status(500).json({ error: err.message }); }
+  finally { client.release(); }
+});
+
+app.post('/api/quotations/import', auth(['owner','admin','accountant']), async (req, res) => {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const items = req.body.items || []; let created = 0;
+    for (const b of items) {
+      if (!b.client_name) continue;
+      const id = uuidv4();
+      const { rows: seq } = await client.query("SELECT COALESCE(MAX(CAST(SUBSTRING(quote_number FROM '[0-9]+$') AS INTEGER)),0)+1 as n FROM quotations WHERE company_id=$1", [req.user.company_id]);
+      const num = 'QT-' + new Date().getFullYear() + '-' + String(seq[0].n).padStart(4,'0');
+      await client.query(
+        'INSERT INTO quotations (id,company_id,quote_number,client_name,subtotal,total) VALUES ($1,$2,$3,$4,$5,$6)',
+        [id, req.user.company_id, num, b.client_name, parseFloat(b.subtotal)||0, (parseFloat(b.subtotal)||0)*1.05]
+      );
+      created++;
+    }
+    await client.query('COMMIT');
+    res.status(201).json({ success: true, imported: created });
+  } catch (err) { await client.query('ROLLBACK'); res.status(500).json({ error: err.message }); }
+  finally { client.release(); }
+});
+
+app.post('/api/purchase-orders/import', auth(['owner','admin','accountant']), async (req, res) => {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const items = req.body.items || []; let created = 0;
+    for (const b of items) {
+      if (!b.vendor_name) continue;
+      const id = uuidv4();
+      const { rows: seq } = await client.query("SELECT COALESCE(MAX(CAST(SUBSTRING(po_number FROM '[0-9]+$') AS INTEGER)),0)+1 as n FROM purchase_orders WHERE company_id=$1", [req.user.company_id]);
+      const num = 'PO-' + new Date().getFullYear() + '-' + String(seq[0].n).padStart(4,'0');
+      await client.query(
+        'INSERT INTO purchase_orders (id,company_id,po_number,vendor_name,subtotal,total) VALUES ($1,$2,$3,$4,$5,$6)',
+        [id, req.user.company_id, num, b.vendor_name, parseFloat(b.subtotal)||0, (parseFloat(b.subtotal)||0)*1.05]
+      );
+      created++;
+    }
+    await client.query('COMMIT');
+    res.status(201).json({ success: true, imported: created });
+  } catch (err) { await client.query('ROLLBACK'); res.status(500).json({ error: err.message }); }
+  finally { client.release(); }
+});
+
+app.post('/api/leaves/import', auth(['owner','admin','hr']), async (req, res) => {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const items = req.body.items || []; let created = 0;
+    for (const b of items) {
+      if (!b.employee_id || !b.leave_type_id) continue;
+      const days = Math.ceil((new Date(b.end_date) - new Date(b.start_date)) / 864e5) + 1;
+      await client.query(
+        'INSERT INTO leave_requests (id,company_id,employee_id,leave_type_id,start_date,end_date,days,reason) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)',
+        [uuidv4(), req.user.company_id, b.employee_id, b.leave_type_id, b.start_date, b.end_date, days>0?days:1, b.reason||'']
+      );
+      created++;
+    }
+    await client.query('COMMIT');
+    res.status(201).json({ success: true, imported: created });
+  } catch (err) { await client.query('ROLLBACK'); res.status(500).json({ error: err.message }); }
+  finally { client.release(); }
+});
+
 }; // end module.exports
