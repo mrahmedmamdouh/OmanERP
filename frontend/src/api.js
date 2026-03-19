@@ -331,3 +331,21 @@ export async function submitSPF(data) {
 export async function getPayrollRuns() {
   return req("GET", "/api/payroll/runs");
 }
+
+// ─── BULK IMPORT ────────────────────────────────────────────
+export async function importEmployees(items) {
+  return req("POST", "/api/employees/import", { items: items });
+}
+
+export async function importInvoices(items) {
+  return req("POST", "/api/invoices/import", { items: items });
+}
+
+export async function importExpenses(items) {
+  return req("POST", "/api/expenses/import", { items: items });
+}
+
+// ─── INVOICE EXTRAS ─────────────────────────────────────────
+export async function duplicateInvoice(idOrNumber) {
+  return req("POST", "/api/invoices/" + idOrNumber + "/duplicate", {});
+}
