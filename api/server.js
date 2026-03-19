@@ -482,6 +482,115 @@ app.post('/api/expenses/import', auth(['owner','admin','accountant']), async (re
 });
 
 // ═══════════════════════════════════════════════════════════════
+// PRODUCTS CATALOG
+// ═══════════════════════════════════════════════════════════════
+app.get('/api/products', auth(), async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      'SELECT * FROM products WHERE company_id = $1 AND is_active = true ORDER BY name_en',
+      [req.user.company_id]
+    );
+    res.json(rows);
+  } catch (err) {
+    // Table might not exist yet
+    console.error('[PRODUCTS]', err.message);
+    res.json([]);
+  }
+});
+
+// Barcode lookup — returns single product
+app.get('/api/products/barcode/:code', auth(), async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      'SELECT * FROM products WHERE company_id = $1 AND barcode = $2 AND is_active = true',
+      [req.user.company_id, req.params.code]
+    );
+    if (rows.length === 0) return res.status(404).json({ error: 'Product not found for barcode: ' + req.params.code });
+    res.json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Search products by name or barcode (for autocomplete)
+app.get('/api/products/search', auth(), async (req, res) => {
+  try {
+    const q = req.query.q || '';
+    const { rows } = await pool.query(
+      `SELECT * FROM products WHERE company_id = $1 AND is_active = true 
+       AND (name_en ILIKE $2 OR name_ar ILIKE $2 OR barcode ILIKE $2 OR sku ILIKE $2)
+       ORDER BY name_en LIMIT 10`,
+      [req.user.company_id, '%' + q + '%']
+    );
+    res.json(rows);
+  } catch (err) { res.json([]); }
+});
+
+app.post('/api/products', auth(['owner','admin','accountant']), async (req, res) => {
+  try {
+    const b = req.body;
+    const id = uuidv4();
+    const { rows } = await pool.query(
+      `INSERT INTO products (id, company_id, barcode, sku, name_ar, name_en, description_en, unit_price, cost_price, category, unit, tax_rate, stock_qty)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING *`,
+      [id, req.user.company_id, b.barcode||null, b.sku||null, b.name_ar||'', b.name_en, b.description_en||'', parseFloat(b.unit_price)||0, parseFloat(b.cost_price)||0, b.category||'', b.unit||'piece', parseFloat(b.tax_rate)||5, parseFloat(b.stock_qty)||0]
+    );
+    res.status(201).json(rows[0]);
+  } catch (err) {
+    if (err.code === '23505') return res.status(409).json({ error: 'Barcode already exists' });
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.put('/api/products/:id', auth(['owner','admin','accountant']), async (req, res) => {
+  try {
+    if (!isUUID(req.params.id)) return res.status(400).json({ error: 'Invalid product ID' });
+    const b = req.body;
+    const { rows } = await pool.query(
+      `UPDATE products SET barcode=$1, sku=$2, name_ar=$3, name_en=$4, description_en=$5, unit_price=$6, cost_price=$7, category=$8, unit=$9, tax_rate=$10, stock_qty=$11
+       WHERE id=$12 AND company_id=$13 RETURNING *`,
+      [b.barcode||null, b.sku||null, b.name_ar||'', b.name_en, b.description_en||'', parseFloat(b.unit_price)||0, parseFloat(b.cost_price)||0, b.category||'', b.unit||'piece', parseFloat(b.tax_rate)||5, parseFloat(b.stock_qty)||0, req.params.id, req.user.company_id]
+    );
+    if (rows.length === 0) return res.status(404).json({ error: 'Not found' });
+    res.json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete('/api/products/:id', auth(['owner','admin']), async (req, res) => {
+  try {
+    if (!isUUID(req.params.id)) return res.status(400).json({ error: 'Invalid product ID' });
+    await pool.query('UPDATE products SET is_active = false WHERE id=$1 AND company_id=$2', [req.params.id, req.user.company_id]);
+    res.json({ success: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.post('/api/products/import', auth(['owner','admin','accountant']), async (req, res) => {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const items = req.body.items || [];
+    let created = 0;
+    for (const b of items) {
+      if (!b.name_en) continue;
+      const id = uuidv4();
+      await client.query(
+        `INSERT INTO products (id, company_id, barcode, sku, name_ar, name_en, unit_price, category, unit)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
+        [id, req.user.company_id, b.barcode||null, b.sku||null, b.name_ar||'', b.name_en, parseFloat(b.unit_price)||0, b.category||'', b.unit||'piece']
+      );
+      created++;
+    }
+    await client.query('COMMIT');
+    res.status(201).json({ success: true, imported: created });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    res.status(500).json({ error: err.message });
+  } finally { client.release(); }
+});
+
+// ═══════════════════════════════════════════════════════════════
 // PAYROLL
 // ═══════════════════════════════════════════════════════════════
 app.post('/api/payroll/run', auth(['owner','admin','accountant']), async (req, res) => {
