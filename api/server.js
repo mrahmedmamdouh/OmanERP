@@ -403,7 +403,18 @@ app.post('/api/payroll/run', auth(['owner','admin','accountant']), async (req, r
   }
 });
 
+app.get('/api/payroll/runs', auth(), async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      'SELECT * FROM payroll_runs WHERE company_id = $1 ORDER BY period_year DESC, period_month DESC',
+      [req.user.company_id]
+    );
+    res.json(rows);
+  } catch (err) { res.json([]); }
+});
+
 app.get('/api/payroll/:runId', auth(), async (req, res) => {
+  if (!isUUID(req.params.runId)) return res.status(400).json({ error: 'Invalid payroll run ID' });
   const { rows } = await pool.query(
     `SELECT pi.*, e.name_en, e.name_ar, e.department, e.role_title_en, e.nationality, e.bank_name, e.iban
      FROM payroll_items pi JOIN employees e ON pi.employee_id = e.id
@@ -531,17 +542,6 @@ app.post('/api/spf/submit', auth(['owner','admin','accountant']), async (req, re
     res.status(500).json({ error: err.message });
   }
 });
-
-app.get('/api/payroll/runs', auth(), async (req, res) => {
-  try {
-    const { rows } = await pool.query(
-      'SELECT * FROM payroll_runs WHERE company_id = $1 ORDER BY period_year DESC, period_month DESC',
-      [req.user.company_id]
-    );
-    res.json(rows);
-  } catch (err) { res.json([]); }
-});
-
 // ─── NOTIFICATIONS ──────────────────────────────────────────
 app.get('/api/notifications', auth(), async (req, res) => {
   const { rows } = await pool.query(
