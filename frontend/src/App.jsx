@@ -18,8 +18,8 @@ function buildJSON(d){return JSON.stringify(d,null,2);}
 
 // ─── Translations ───
 var TR={
-  en:{dashboard:"Dashboard",revenue:"Revenue",vatDue:"VAT Due",employees:"Employees",omani:"Omani",expat:"Expat",total:"Total",spfMonth:"Monthly SPF",payroll:"Payroll",invoices:"Invoices",pending:"Pending",overdue:"Overdue",paid:"Paid",cancelled:"Cancelled",invNo:"Invoice #",client:"Client",date:"Date",subtotal:"Subtotal",vat:"VAT",status:"Status",recentInv:"Recent Invoices",omanOv:"Omanization",newInv:"New Invoice",clientAr:"Client (AR)",clientEn:"Client (EN)",descAr:"Desc (AR)",descEn:"Desc (EN)",qty:"Qty",price:"Price",addItem:"+ Add Item",create:"Create",back:"\u2190 Back",addEmp:"Add Employee",editEmp:"Edit Employee",nameAr:"Name (AR)",nameEn:"Name (EN)",nationality:"Nationality",department:"Department",salary:"Salary",role:"Role",joinDate:"Joined",save:"Save",name:"Name",cancel:"Cancel",confirm:"Confirm",confirmDel:"Confirm delete?",vatComp:"VAT Compliance",outputVAT:"Output VAT",inputVAT:"Input VAT",netVAT:"Net VAT",vatReturn:"VAT Return",download:"Download",submit:"Submit",checklist:"Checklist",taxReg:"Tax Registered",invOk:"Invoices OK",retFiled:"Return Filed",payDone:"Payment Done",recsKept:"Records Kept 5yr",spf:"Social Protection",erContrib:"Employer",eeContrib:"Employee",gvContrib:"Government",monthlyTotal:"Monthly Total",eligible:"eligible",employer:"Employer",employee:"Employee",govt:"Govt",spfNo:"SPF #",basicSal:"Basic Salary",erShare:"ER Share",eeShare:"EE Share",totalCont:"Total",dlSPF:"Export SPF",submitSPF:"Submit SPF",oman:"Omanization",overallRate:"Overall",compliant:"Compliant",nonComp:"Non-Compliant",actionNeeded:"Action Needed",current:"Current",target:"Target",needHire:"Need to hire",moreOmanis:"more Omanis",payrollMod:"Payroll",basic:"Basic",allowances:"Allowances",netPay:"Net Pay",spfDed:"SPF Ded.",runPayroll:"Run Payroll",payslip:"Pay Slip",payslipTitle:"Monthly Pay Slip",expenses:"Expenses",addExp:"Add Expense",category:"Category",vendor:"Vendor",amount:"Amount",vatInc:"VAT Incl.",reports:"Reports",incomeStatement:"Income Statement",totalIncome:"Income",totalExp:"Expenses",netProfit:"Net Profit",grossMargin:"Margin",settings:"Settings",compAr:"Company (AR)",compEn:"Company (EN)",crNo:"CR No.",taxId:"Tax ID",address:"Address",email:"Email",language:"Language",saveSettings:"Save Settings",export:"Export",print:"Print",emailInv:"Email",markPaid:"Mark Paid",cancelInv:"Cancel Invoice",duplicate:"Duplicate",search:"Search...",notifications:"Notifications",noNotif:"No notifications",clearAll:"Clear All",logout:"Logout",appTitle:"Oman SME ERP",connected:"Connected",taxableSales:"Taxable Sales",deductible:"Deductible Input",netPayable:"Net Payable",submitted:"Submitted",done:"Done",running:"Running...",submitting:"Submitting...",saving:"Saving...",creating:"Creating...",adding:"Adding...",deleting:"Deleting...",dataExport:"Data Export",fullBackup:"Full Backup (JSON)",empCSV:"Employees CSV",invCSV:"Invoices CSV",companyInfo:"Company Info",signIn:"Sign In",createAccount:"Create Account",signInSub:"Sign in to your account",registerSub:"Create your company account",yourName:"Your Name",compName:"Company Name",compNameAr:"\u0627\u0633\u0645 \u0627\u0644\u0634\u0631\u0643\u0629",noAccount:"No account? Register",hasAccount:"Have an account? Sign In",gross:"Gross",description:"Description",all:"All",close:"Close",copy:"Copy",taxInvoice:"Tax Invoice",net:"Net",costs:"Costs",profit:"Profit",margin:"Margin",income:"Income",importCSV:"Import CSV",importSheet:"Import Spreadsheet",dlTemplate:"Download Template",importing:"Importing...",imported:"Imported",rows:"rows",preview:"Preview",selectFile:"Select CSV File",duplicateInv:"Duplicate Invoice",quickInv:"Quick Invoice",recurInv:"Recurring Invoice",createFrom:"Create From...",dragDrop:"Drop CSV file here or click to browse",mapCols:"Column Mapping",importNow:"Import Now",skipHeader:"First row is header",products:"Products",barcode:"Barcode",sku:"SKU",unitPrice:"Unit Price",costPrice:"Cost Price",unit:"Unit",stockQty:"Stock",addProduct:"Add Product",editProduct:"Edit Product",scanBarcode:"Scan Barcode",scanHint:"Scan barcode or type code + Enter",productFound:"Product found",productNotFound:"Product not found",piece:"piece",hour:"hour",box:"box",kg:"kg",meter:"meter",catalog:"Catalog",accounting:"Accounting",chartOfAccounts:"Chart of Accounts",journalEntries:"Journal Entries",balanceSheet:"Balance Sheet",cashFlow:"Cash Flow",arAging:"AR Aging",apAging:"AP Aging",contacts:"Contacts",customers:"Customers",vendors:"Vendors",quotations:"Quotations",purchaseOrders:"Purchase Orders",leavesMgmt:"Leave Mgmt",attendance:"Attendance",wps:"WPS File",contactType:"Type",phone:"Phone",creditLimit:"Credit Limit",paymentTerms:"Payment Terms",days:"days",quoteNo:"Quote #",poNo:"PO #",vendorName:"Vendor",validUntil:"Valid Until",convertToInv:"Convert to Invoice",leaveType:"Leave Type",startDate:"Start",endDate:"End",reason:"Reason",approve:"Approve",reject:"Reject",checkIn:"Check In",checkOut:"Check Out",hoursWorked:"Hours",present:"Present",absent:"Absent",late:"Late",halfDay:"Half Day",onLeave:"On Leave",generateWPS:"Generate WPS",debit:"Debit",credit:"Credit",post:"Post",posted:"Posted",draft:"Draft",sent:"Sent",accepted:"Accepted",rejected:"Rejected",converted:"Converted",confirmed:"Confirmed",received:"Received",assets:"Assets",liabilities:"Liabilities",equity:"Equity",accountCode:"Code",accountType:"Type",newJournal:"New Journal Entry",newQuotation:"New Quotation",newPO:"New Purchase Order",newContact:"New Contact",newLeave:"New Leave Request",customer:"Customer",both:"Both",notes:"Notes",reference:"Reference",current30:"Current",past30:"1-30 days",past60:"31-60 days",past90:"61-90 days",past90plus:"90+ days"},
-  ar:{dashboard:"لوحة المعلومات",revenue:"الإيرادات",vatDue:"ضريبة مستحقة",employees:"الموظفون",omani:"عُماني",expat:"وافد",total:"الإجمالي",spfMonth:"اشتراكات الحماية",payroll:"الرواتب",invoices:"الفواتير",pending:"معلقة",overdue:"متأخرة",paid:"مدفوعة",cancelled:"ملغاة",invNo:"رقم الفاتورة",client:"العميل",date:"التاريخ",subtotal:"الفرعي",vat:"ض.ق.م",status:"الحالة",recentInv:"أحدث الفواتير",omanOv:"نظرة التعمين",newInv:"فاتورة جديدة",clientAr:"العميل (ع)",clientEn:"العميل (EN)",descAr:"الوصف (ع)",descEn:"الوصف (EN)",qty:"الكمية",price:"السعر",addItem:"+ إضافة بند",create:"إنشاء",back:"→ رجوع",addEmp:"إضافة موظف",editEmp:"تعديل موظف",nameAr:"الاسم (ع)",nameEn:"الاسم (EN)",nationality:"الجنسية",department:"القسم",salary:"الراتب",role:"الوظيفة",joinDate:"الالتحاق",save:"حفظ",name:"الاسم",cancel:"إلغاء",confirm:"تأكيد",confirmDel:"تأكيد الحذف؟",vatComp:"الامتثال الضريبي",outputVAT:"ضريبة المخرجات",inputVAT:"ضريبة المدخلات",netVAT:"صافي الضريبة",vatReturn:"الإقرار الضريبي",download:"تحميل",submit:"تقديم",checklist:"قائمة الامتثال",taxReg:"مسجل ضريبياً",invOk:"فواتير متوافقة",retFiled:"تم تقديم الإقرار",payDone:"تم السداد",recsKept:"سجلات محفوظة ٥ سنوات",spf:"صندوق الحماية الاجتماعية",erContrib:"حصة المنشأة",eeContrib:"حصة الموظف",gvContrib:"حصة الحكومة",monthlyTotal:"إجمالي شهري",eligible:"مؤهل",employer:"صاحب العمل",employee:"الموظف",govt:"الحكومة",spfNo:"رقم الحماية",basicSal:"الراتب الأساسي",erShare:"حصة المنشأة",eeShare:"حصة الموظف",totalCont:"الإجمالي",dlSPF:"تصدير الحماية",submitSPF:"تقديم للصندوق",oman:"التعمين",overallRate:"النسبة الإجمالية",compliant:"ملتزم",nonComp:"غير ملتزم",actionNeeded:"يتطلب إجراء",current:"الحالي",target:"المستهدف",needHire:"يجب توظيف",moreOmanis:"عُمانيين إضافيين",payrollMod:"كشف الرواتب",basic:"أساسي",allowances:"بدلات",netPay:"صافي الراتب",spfDed:"خصم الحماية",runPayroll:"تشغيل الرواتب",payslip:"قسيمة الراتب",payslipTitle:"قسيمة الراتب الشهرية",expenses:"المصروفات",addExp:"إضافة مصروف",category:"الفئة",vendor:"المورد",amount:"المبلغ",vatInc:"شامل الضريبة",reports:"التقارير",incomeStatement:"قائمة الدخل",totalIncome:"الدخل",totalExp:"المصروفات",netProfit:"صافي الربح",grossMargin:"هامش الربح",settings:"الإعدادات",compAr:"الشركة (عربي)",compEn:"الشركة (إنجليزي)",crNo:"السجل التجاري",taxId:"الرقم الضريبي",address:"العنوان",email:"البريد",language:"اللغة",saveSettings:"حفظ الإعدادات",export:"تصدير",print:"طباعة",emailInv:"إرسال",markPaid:"تحديد كمدفوعة",cancelInv:"إلغاء الفاتورة",duplicate:"نسخ",search:"بحث...",notifications:"الإشعارات",noNotif:"لا إشعارات",clearAll:"مسح الكل",logout:"تسجيل الخروج",appTitle:"نظام إدارة المنشآت",connected:"متصل",taxableSales:"مبيعات خاضعة",deductible:"مدخلات قابلة للخصم",netPayable:"صافي مستحق",submitted:"تم التقديم",done:"تم",running:"جاري التشغيل...",submitting:"جاري التقديم...",saving:"جاري الحفظ...",creating:"جاري الإنشاء...",adding:"جاري الإضافة...",deleting:"جاري الحذف...",dataExport:"تصدير البيانات",fullBackup:"نسخة احتياطية كاملة",empCSV:"الموظفون CSV",invCSV:"الفواتير CSV",companyInfo:"بيانات الشركة",signIn:"تسجيل الدخول",createAccount:"إنشاء حساب",signInSub:"سجل الدخول إلى حسابك",registerSub:"أنشئ حساب شركتك",yourName:"اسمك",compName:"اسم الشركة (إنجليزي)",compNameAr:"اسم الشركة (عربي)",noAccount:"ليس لديك حساب؟ سجل الآن",hasAccount:"لديك حساب؟ سجل الدخول",gross:"الإجمالي",description:"الوصف",all:"الكل",close:"إغلاق",copy:"نسخ",taxInvoice:"فاتورة ضريبية",importCSV:"استيراد CSV",importSheet:"استيراد جدول بيانات",dlTemplate:"تحميل القالب",importing:"جاري الاستيراد...",imported:"تم الاستيراد",rows:"صفوف",preview:"معاينة",selectFile:"اختر ملف CSV",duplicateInv:"نسخ الفاتورة",quickInv:"فاتورة سريعة",recurInv:"فاتورة دورية",createFrom:"إنشاء من...",dragDrop:"اسحب ملف CSV هنا أو اضغط للتصفح",mapCols:"تعيين الأعمدة",importNow:"استيراد الآن",skipHeader:"الصف الأول عنوان",products:"المنتجات",barcode:"الباركود",sku:"رمز المنتج",unitPrice:"سعر الوحدة",costPrice:"سعر التكلفة",unit:"الوحدة",stockQty:"المخزون",addProduct:"إضافة منتج",editProduct:"تعديل منتج",scanBarcode:"مسح الباركود",scanHint:"امسح الباركود أو اكتب الرمز + Enter",productFound:"تم العثور على المنتج",productNotFound:"المنتج غير موجود",piece:"قطعة",hour:"ساعة",box:"صندوق",kg:"كجم",meter:"متر",catalog:"الكتالوج",accounting:"المحاسبة",chartOfAccounts:"دليل الحسابات",journalEntries:"القيود اليومية",balanceSheet:"الميزانية العمومية",cashFlow:"التدفق النقدي",arAging:"أعمار الذمم المدينة",apAging:"أعمار الذمم الدائنة",contacts:"جهات الاتصال",customers:"العملاء",vendors:"الموردون",quotations:"عروض الأسعار",purchaseOrders:"أوامر الشراء",leavesMgmt:"إدارة الإجازات",attendance:"الحضور",wps:"ملف WPS",contactType:"النوع",phone:"الهاتف",creditLimit:"حد الائتمان",paymentTerms:"شروط الدفع",days:"يوم",quoteNo:"رقم العرض",poNo:"رقم أمر الشراء",vendorName:"المورد",validUntil:"صالح حتى",convertToInv:"تحويل لفاتورة",leaveType:"نوع الإجازة",startDate:"البداية",endDate:"النهاية",reason:"السبب",approve:"موافقة",reject:"رفض",checkIn:"دخول",checkOut:"خروج",hoursWorked:"الساعات",present:"حاضر",absent:"غائب",late:"متأخر",halfDay:"نصف يوم",onLeave:"إجازة",generateWPS:"إنشاء ملف WPS",debit:"مدين",credit:"دائن",post:"ترحيل",posted:"مرحّل",draft:"مسودة",sent:"مرسل",accepted:"مقبول",rejected:"مرفوض",converted:"محوّل",confirmed:"مؤكد",received:"مستلم",assets:"الأصول",liabilities:"الالتزامات",equity:"حقوق الملكية",accountCode:"الرمز",accountType:"النوع",newJournal:"قيد جديد",newQuotation:"عرض سعر جديد",newPO:"أمر شراء جديد",newContact:"جهة اتصال جديدة",newLeave:"طلب إجازة جديد",customer:"عميل",both:"كلاهما",notes:"ملاحظات",reference:"المرجع",current30:"جاري",past30:"1-30 يوم",past60:"31-60 يوم",past90:"61-90 يوم",past90plus:"90+ يوم"}
+  en:{dashboard:"Dashboard",revenue:"Revenue",vatDue:"VAT Due",employees:"Employees",omani:"Omani",expat:"Expat",total:"Total",spfMonth:"Monthly SPF",payroll:"Payroll",invoices:"Invoices",pending:"Pending",overdue:"Overdue",paid:"Paid",cancelled:"Cancelled",invNo:"Invoice #",client:"Client",date:"Date",subtotal:"Subtotal",vat:"VAT",status:"Status",recentInv:"Recent Invoices",omanOv:"Omanization",newInv:"New Invoice",clientAr:"Client (AR)",clientEn:"Client (EN)",descAr:"Desc (AR)",descEn:"Desc (EN)",qty:"Qty",price:"Price",addItem:"+ Add Item",create:"Create",back:"\u2190 Back",addEmp:"Add Employee",editEmp:"Edit Employee",nameAr:"Name (AR)",nameEn:"Name (EN)",nationality:"Nationality",department:"Department",salary:"Salary",role:"Role",joinDate:"Joined",save:"Save",name:"Name",cancel:"Cancel",confirm:"Confirm",confirmDel:"Confirm delete?",vatComp:"VAT Compliance",outputVAT:"Output VAT",inputVAT:"Input VAT",netVAT:"Net VAT",vatReturn:"VAT Return",download:"Download",submit:"Submit",checklist:"Checklist",taxReg:"Tax Registered",invOk:"Invoices OK",retFiled:"Return Filed",payDone:"Payment Done",recsKept:"Records Kept 5yr",spf:"Social Protection",erContrib:"Employer",eeContrib:"Employee",gvContrib:"Government",monthlyTotal:"Monthly Total",eligible:"eligible",employer:"Employer",employee:"Employee",govt:"Govt",spfNo:"SPF #",basicSal:"Basic Salary",erShare:"ER Share",eeShare:"EE Share",totalCont:"Total",dlSPF:"Export SPF",submitSPF:"Submit SPF",oman:"Omanization",overallRate:"Overall",compliant:"Compliant",nonComp:"Non-Compliant",actionNeeded:"Action Needed",current:"Current",target:"Target",needHire:"Need to hire",moreOmanis:"more Omanis",payrollMod:"Payroll",basic:"Basic",allowances:"Allowances",netPay:"Net Pay",spfDed:"SPF Ded.",runPayroll:"Run Payroll",payslip:"Pay Slip",payslipTitle:"Monthly Pay Slip",expenses:"Expenses",addExp:"Add Expense",category:"Category",vendor:"Vendor",amount:"Amount",vatInc:"VAT Incl.",reports:"Reports",incomeStatement:"Income Statement",totalIncome:"Income",totalExp:"Expenses",netProfit:"Net Profit",grossMargin:"Margin",settings:"Settings",compAr:"Company (AR)",compEn:"Company (EN)",crNo:"CR No.",taxId:"Tax ID",address:"Address",email:"Email",language:"Language",saveSettings:"Save Settings",export:"Export",print:"Print",emailInv:"Email",markPaid:"Mark Paid",cancelInv:"Cancel Invoice",duplicate:"Duplicate",search:"Search...",notifications:"Notifications",noNotif:"No notifications",clearAll:"Clear All",logout:"Logout",appTitle:"Oman SME ERP",connected:"Connected",taxableSales:"Taxable Sales",deductible:"Deductible Input",netPayable:"Net Payable",submitted:"Submitted",done:"Done",running:"Running...",submitting:"Submitting...",saving:"Saving...",creating:"Creating...",adding:"Adding...",deleting:"Deleting...",dataExport:"Data Export",fullBackup:"Full Backup (JSON)",empCSV:"Employees CSV",invCSV:"Invoices CSV",companyInfo:"Company Info",signIn:"Sign In",createAccount:"Create Account",signInSub:"Sign in to your account",registerSub:"Create your company account",yourName:"Your Name",compName:"Company Name",compNameAr:"\u0627\u0633\u0645 \u0627\u0644\u0634\u0631\u0643\u0629",noAccount:"No account? Register",hasAccount:"Have an account? Sign In",gross:"Gross",description:"Description",all:"All",close:"Close",copy:"Copy",taxInvoice:"Tax Invoice",net:"Net",costs:"Costs",profit:"Profit",margin:"Margin",income:"Income",importCSV:"Import CSV",importSheet:"Import Spreadsheet",dlTemplate:"Download Template",importing:"Importing...",imported:"Imported",rows:"rows",preview:"Preview",selectFile:"Select CSV File",duplicateInv:"Duplicate Invoice",quickInv:"Quick Invoice",recurInv:"Recurring Invoice",createFrom:"Create From...",dragDrop:"Drop CSV file here or click to browse",mapCols:"Column Mapping",importNow:"Import Now",skipHeader:"First row is header",products:"Products",barcode:"Barcode",sku:"SKU",unitPrice:"Unit Price",costPrice:"Cost Price",unit:"Unit",stockQty:"Stock",addProduct:"Add Product",editProduct:"Edit Product",scanBarcode:"Scan Barcode",scanHint:"Scan barcode or type code + Enter",productFound:"Product found",productNotFound:"Product not found",piece:"piece",hour:"hour",box:"box",kg:"kg",meter:"meter",catalog:"Catalog",accounting:"Accounting",chartOfAccounts:"Chart of Accounts",journalEntries:"Journal Entries",balanceSheet:"Balance Sheet",cashFlow:"Cash Flow",arAging:"AR Aging",apAging:"AP Aging",contacts:"Contacts",customers:"Customers",vendors:"Vendors",quotations:"Quotations",purchaseOrders:"Purchase Orders",leavesMgmt:"Leave Mgmt",attendance:"Attendance",wps:"WPS File",contactType:"Type",phone:"Phone",creditLimit:"Credit Limit",paymentTerms:"Payment Terms",days:"days",quoteNo:"Quote #",poNo:"PO #",vendorName:"Vendor",validUntil:"Valid Until",convertToInv:"Convert to Invoice",leaveType:"Leave Type",startDate:"Start",endDate:"End",reason:"Reason",approve:"Approve",reject:"Reject",checkIn:"Check In",checkOut:"Check Out",hoursWorked:"Hours",present:"Present",absent:"Absent",late:"Late",halfDay:"Half Day",onLeave:"On Leave",generateWPS:"Generate WPS",debit:"Debit",credit:"Credit",post:"Post",posted:"Posted",draft:"Draft",sent:"Sent",accepted:"Accepted",rejected:"Rejected",converted:"Converted",confirmed:"Confirmed",received:"Received",assets:"Assets",liabilities:"Liabilities",equity:"Equity",accountCode:"Code",accountType:"Type",newJournal:"New Journal Entry",newQuotation:"New Quotation",newPO:"New Purchase Order",newContact:"New Contact",newLeave:"New Leave Request",customer:"Customer",both:"Both",notes:"Notes",reference:"Reference",current30:"Current",past30:"1-30 days",past60:"31-60 days",past90:"61-90 days",past90plus:"90+ days",heroTitle:"Smart ERP for Oman SMEs",heroSub:"Invoicing, Payroll, VAT, SPF, Omanization — all in one bilingual platform.",getStarted:"Get Started Free",viewPricing:"View Pricing",pricing:"Pricing",perMonth:"/month",features14:"14-day free trial",noCard:"No credit card required",planTrial:"Free Trial",planStarter:"Starter",planPro:"Professional",planEnt:"Enterprise",popular:"Most Popular",choosePlan:"Choose Plan",trialDays:"days left in trial",upgrade:"Upgrade",planExpired:"Plan expired",setupWizard:"Setup Your Company",step1:"Company Info",step2:"First Employee",step3:"First Product",skip:"Skip",next:"Next",finish:"Finish Setup",welcomeMsg:"Welcome to your ERP!",trialBanner:"Trial",users:"users",empLimit:"employees",invLimit:"invoices/month"},
+  ar:{dashboard:"لوحة المعلومات",revenue:"الإيرادات",vatDue:"ضريبة مستحقة",employees:"الموظفون",omani:"عُماني",expat:"وافد",total:"الإجمالي",spfMonth:"اشتراكات الحماية",payroll:"الرواتب",invoices:"الفواتير",pending:"معلقة",overdue:"متأخرة",paid:"مدفوعة",cancelled:"ملغاة",invNo:"رقم الفاتورة",client:"العميل",date:"التاريخ",subtotal:"الفرعي",vat:"ض.ق.م",status:"الحالة",recentInv:"أحدث الفواتير",omanOv:"نظرة التعمين",newInv:"فاتورة جديدة",clientAr:"العميل (ع)",clientEn:"العميل (EN)",descAr:"الوصف (ع)",descEn:"الوصف (EN)",qty:"الكمية",price:"السعر",addItem:"+ إضافة بند",create:"إنشاء",back:"→ رجوع",addEmp:"إضافة موظف",editEmp:"تعديل موظف",nameAr:"الاسم (ع)",nameEn:"الاسم (EN)",nationality:"الجنسية",department:"القسم",salary:"الراتب",role:"الوظيفة",joinDate:"الالتحاق",save:"حفظ",name:"الاسم",cancel:"إلغاء",confirm:"تأكيد",confirmDel:"تأكيد الحذف؟",vatComp:"الامتثال الضريبي",outputVAT:"ضريبة المخرجات",inputVAT:"ضريبة المدخلات",netVAT:"صافي الضريبة",vatReturn:"الإقرار الضريبي",download:"تحميل",submit:"تقديم",checklist:"قائمة الامتثال",taxReg:"مسجل ضريبياً",invOk:"فواتير متوافقة",retFiled:"تم تقديم الإقرار",payDone:"تم السداد",recsKept:"سجلات محفوظة ٥ سنوات",spf:"صندوق الحماية الاجتماعية",erContrib:"حصة المنشأة",eeContrib:"حصة الموظف",gvContrib:"حصة الحكومة",monthlyTotal:"إجمالي شهري",eligible:"مؤهل",employer:"صاحب العمل",employee:"الموظف",govt:"الحكومة",spfNo:"رقم الحماية",basicSal:"الراتب الأساسي",erShare:"حصة المنشأة",eeShare:"حصة الموظف",totalCont:"الإجمالي",dlSPF:"تصدير الحماية",submitSPF:"تقديم للصندوق",oman:"التعمين",overallRate:"النسبة الإجمالية",compliant:"ملتزم",nonComp:"غير ملتزم",actionNeeded:"يتطلب إجراء",current:"الحالي",target:"المستهدف",needHire:"يجب توظيف",moreOmanis:"عُمانيين إضافيين",payrollMod:"كشف الرواتب",basic:"أساسي",allowances:"بدلات",netPay:"صافي الراتب",spfDed:"خصم الحماية",runPayroll:"تشغيل الرواتب",payslip:"قسيمة الراتب",payslipTitle:"قسيمة الراتب الشهرية",expenses:"المصروفات",addExp:"إضافة مصروف",category:"الفئة",vendor:"المورد",amount:"المبلغ",vatInc:"شامل الضريبة",reports:"التقارير",incomeStatement:"قائمة الدخل",totalIncome:"الدخل",totalExp:"المصروفات",netProfit:"صافي الربح",grossMargin:"هامش الربح",settings:"الإعدادات",compAr:"الشركة (عربي)",compEn:"الشركة (إنجليزي)",crNo:"السجل التجاري",taxId:"الرقم الضريبي",address:"العنوان",email:"البريد",language:"اللغة",saveSettings:"حفظ الإعدادات",export:"تصدير",print:"طباعة",emailInv:"إرسال",markPaid:"تحديد كمدفوعة",cancelInv:"إلغاء الفاتورة",duplicate:"نسخ",search:"بحث...",notifications:"الإشعارات",noNotif:"لا إشعارات",clearAll:"مسح الكل",logout:"تسجيل الخروج",appTitle:"نظام إدارة المنشآت",connected:"متصل",taxableSales:"مبيعات خاضعة",deductible:"مدخلات قابلة للخصم",netPayable:"صافي مستحق",submitted:"تم التقديم",done:"تم",running:"جاري التشغيل...",submitting:"جاري التقديم...",saving:"جاري الحفظ...",creating:"جاري الإنشاء...",adding:"جاري الإضافة...",deleting:"جاري الحذف...",dataExport:"تصدير البيانات",fullBackup:"نسخة احتياطية كاملة",empCSV:"الموظفون CSV",invCSV:"الفواتير CSV",companyInfo:"بيانات الشركة",signIn:"تسجيل الدخول",createAccount:"إنشاء حساب",signInSub:"سجل الدخول إلى حسابك",registerSub:"أنشئ حساب شركتك",yourName:"اسمك",compName:"اسم الشركة (إنجليزي)",compNameAr:"اسم الشركة (عربي)",noAccount:"ليس لديك حساب؟ سجل الآن",hasAccount:"لديك حساب؟ سجل الدخول",gross:"الإجمالي",description:"الوصف",all:"الكل",close:"إغلاق",copy:"نسخ",taxInvoice:"فاتورة ضريبية",importCSV:"استيراد CSV",importSheet:"استيراد جدول بيانات",dlTemplate:"تحميل القالب",importing:"جاري الاستيراد...",imported:"تم الاستيراد",rows:"صفوف",preview:"معاينة",selectFile:"اختر ملف CSV",duplicateInv:"نسخ الفاتورة",quickInv:"فاتورة سريعة",recurInv:"فاتورة دورية",createFrom:"إنشاء من...",dragDrop:"اسحب ملف CSV هنا أو اضغط للتصفح",mapCols:"تعيين الأعمدة",importNow:"استيراد الآن",skipHeader:"الصف الأول عنوان",products:"المنتجات",barcode:"الباركود",sku:"رمز المنتج",unitPrice:"سعر الوحدة",costPrice:"سعر التكلفة",unit:"الوحدة",stockQty:"المخزون",addProduct:"إضافة منتج",editProduct:"تعديل منتج",scanBarcode:"مسح الباركود",scanHint:"امسح الباركود أو اكتب الرمز + Enter",productFound:"تم العثور على المنتج",productNotFound:"المنتج غير موجود",piece:"قطعة",hour:"ساعة",box:"صندوق",kg:"كجم",meter:"متر",catalog:"الكتالوج",accounting:"المحاسبة",chartOfAccounts:"دليل الحسابات",journalEntries:"القيود اليومية",balanceSheet:"الميزانية العمومية",cashFlow:"التدفق النقدي",arAging:"أعمار الذمم المدينة",apAging:"أعمار الذمم الدائنة",contacts:"جهات الاتصال",customers:"العملاء",vendors:"الموردون",quotations:"عروض الأسعار",purchaseOrders:"أوامر الشراء",leavesMgmt:"إدارة الإجازات",attendance:"الحضور",wps:"ملف WPS",contactType:"النوع",phone:"الهاتف",creditLimit:"حد الائتمان",paymentTerms:"شروط الدفع",days:"يوم",quoteNo:"رقم العرض",poNo:"رقم أمر الشراء",vendorName:"المورد",validUntil:"صالح حتى",convertToInv:"تحويل لفاتورة",leaveType:"نوع الإجازة",startDate:"البداية",endDate:"النهاية",reason:"السبب",approve:"موافقة",reject:"رفض",checkIn:"دخول",checkOut:"خروج",hoursWorked:"الساعات",present:"حاضر",absent:"غائب",late:"متأخر",halfDay:"نصف يوم",onLeave:"إجازة",generateWPS:"إنشاء ملف WPS",debit:"مدين",credit:"دائن",post:"ترحيل",posted:"مرحّل",draft:"مسودة",sent:"مرسل",accepted:"مقبول",rejected:"مرفوض",converted:"محوّل",confirmed:"مؤكد",received:"مستلم",assets:"الأصول",liabilities:"الالتزامات",equity:"حقوق الملكية",accountCode:"الرمز",accountType:"النوع",newJournal:"قيد جديد",newQuotation:"عرض سعر جديد",newPO:"أمر شراء جديد",newContact:"جهة اتصال جديدة",newLeave:"طلب إجازة جديد",customer:"عميل",both:"كلاهما",notes:"ملاحظات",reference:"المرجع",current30:"جاري",past30:"1-30 يوم",past60:"31-60 يوم",past90:"61-90 يوم",past90plus:"90+ يوم",heroTitle:"نظام ERP ذكي للمنشآت العُمانية",heroSub:"الفوترة، الرواتب، الضريبة، الحماية الاجتماعية، التعمين — في منصة واحدة ثنائية اللغة.",getStarted:"ابدأ مجاناً",viewPricing:"عرض الأسعار",pricing:"الأسعار",perMonth:"/شهرياً",features14:"تجربة مجانية 14 يوم",noCard:"بدون بطاقة ائتمان",planTrial:"تجربة مجانية",planStarter:"أساسي",planPro:"احترافي",planEnt:"مؤسسي",popular:"الأكثر شعبية",choosePlan:"اختر الخطة",trialDays:"يوم متبقي",upgrade:"ترقية",planExpired:"انتهت الخطة",setupWizard:"إعداد شركتك",step1:"بيانات الشركة",step2:"أول موظف",step3:"أول منتج",skip:"تخطي",next:"التالي",finish:"إنهاء الإعداد",welcomeMsg:"مرحباً بك في نظامك!",trialBanner:"تجربة",users:"مستخدمين",empLimit:"موظف",invLimit:"فاتورة/شهرياً"}
 };
 
 // ─── Icons ───
@@ -254,6 +254,7 @@ export default function App(){
   var [vatReturns,setVatReturns]=useState([]);
   var [spfSubs,setSpfSubs]=useState([]);
   var [payrollRuns,setPayrollRuns]=useState([]);
+  var [billing,setBilling]=useState(null);
 
   // ─── Search state (must be here, before any conditional return) ───
   var [searchQ,setSearchQ]=useState("");
@@ -289,7 +290,7 @@ export default function App(){
   async function loadAllData(){
     setDataLoading(true);
     try{
-      var [empData,invData,expData,prodData,coData,notifData,vatData,spfData,prData]=await Promise.all([
+      var [empData,invData,expData,prodData,coData,notifData,vatData,spfData,prData,billData]=await Promise.all([
         api.getEmployees().catch(function(){return[];}),
         api.getInvoices().catch(function(){return[];}),
         api.getExpenses().catch(function(){return[];}),
@@ -299,6 +300,7 @@ export default function App(){
         api.getVATReturns().catch(function(){return[];}),
         api.getSPFSubmissions().catch(function(){return[];}),
         api.getPayrollRuns().catch(function(){return[];}),
+        api.getBilling().catch(function(){return null;}),
       ]);
       setEmps(empData);
       setInvs(invData);
@@ -309,6 +311,7 @@ export default function App(){
       setVatReturns(vatData);
       setSpfSubs(spfData);
       setPayrollRuns(prData);
+      setBilling(billData);
     }catch(e){
       console.error("Failed to load data:",e);
     }
@@ -347,10 +350,23 @@ export default function App(){
     setAuthLoading(false);
   },[]);
 
-  // ─── If not logged in, show login ───
+  // ─── If not logged in, show landing page ───
   if(!user){
     if(authLoading) return <div style={{minHeight:"100vh",background:C.bg,display:"flex",alignItems:"center",justifyContent:"center"}}><Spinner/></div>;
-    return <LoginPage onAuth={handleAuth}/>;
+    return <LandingPage onAuth={handleAuth} t={t} lang={lang} setLang={setLang}/>;
+  }
+
+  // ─── Onboarding wizard (first login) ───
+  if(billing&&!billing.onboarding_done){
+    return <OnboardingWizard t={t} co={co} setCo={setCo} toast={toast} onDone={function(){setBilling(Object.assign({},billing,{onboarding_done:true}));loadAllData();}}/>;
+  }
+
+  // ─── Plan banner ───
+  var planBanner=null;
+  if(billing){
+    var isTrialVal=billing.plan==="trial";var expiredVal=billing.expired;var daysVal=billing.daysLeft||0;
+    if(expiredVal){planBanner=<div style={{padding:"8px 16px",background:C.rB,borderBottom:"1px solid "+C.rD,display:"flex",alignItems:"center",justifyContent:"center",gap:12,fontSize:13}}><span style={{color:C.r,fontWeight:600}}>{t("planExpired")}</span><Btn s="sm" onClick={function(){setPage("settings");}}>{t("upgrade")}</Btn></div>;}
+    else if(isTrialVal&&daysVal<=14){planBanner=<div style={{padding:"6px 16px",background:C.yB,borderBottom:"1px solid "+C.yD,display:"flex",alignItems:"center",justifyContent:"center",gap:12,fontSize:12}}><span style={{color:C.y,fontWeight:600}}>{t("trialBanner")}: {daysVal} {t("trialDays")}</span><Btn s="sm" v="secondary" onClick={function(){setPage("settings");}}>{t("upgrade")}</Btn></div>;}
   }
 
   // ─── Navigation ───
@@ -426,6 +442,7 @@ export default function App(){
 
     {/* Main */}
     <div style={{flex:1,overflow:"auto",display:"flex",flexDirection:"column"}}>
+      {planBanner}
       <div style={{padding:"10px 24px",borderBottom:"1px solid "+C.brd,display:"flex",alignItems:"center",justifyContent:"space-between",background:C.bg2,flexShrink:0}}>
         <div style={{display:"flex",alignItems:"center",gap:12}}>
           <button type="button" onClick={function(){setCol(!col);}} style={{background:"none",border:"none",cursor:"pointer",padding:4,color:C.mut}}><Ic d={ic.menu} s={18}/></button>
@@ -869,3 +886,184 @@ function LeavesPage(p){var emps=p.emps,t=p.t,toast=p.toast,showExport=p.showExpo
       <Tbl cols={[{key:"emp",label:t("name"),render:function(r){return <span style={{fontWeight:500}}>{r.emp_name}</span>;}},{key:"dept",label:t("department"),render:function(r){return r.department;}},{key:"in",label:t("checkIn"),render:function(r){return r.check_in||"—";}},{key:"out",label:t("checkOut"),render:function(r){return r.check_out||"—";}},{key:"hrs",label:t("hoursWorked"),render:function(r){return r.hours_worked||"—";}},{key:"st",label:t("status"),render:function(r){return <Badge color={r.status==="present"?"g":r.status==="absent"?"r":r.status==="late"?"y":"b"}>{t(r.status)||r.status}</Badge>;}}]} data={att}/>
     </div>}
   </div>;}
+
+// ═══════════════════════════════════════════════════════════════
+// LANDING PAGE — Marketing + Pricing + Login/Register
+// ═══════════════════════════════════════════════════════════════
+function LandingPage(p){
+  var [view,setView]=useState("landing");var t=p.t;
+  var [mode,setMode]=useState("login");
+  var [email,setEmail]=useState("");var [pass,setPass]=useState("");
+  var [nameEn,setNameEn]=useState("");var [coNameEn,setCoNameEn]=useState("");var [coNameAr,setCoNameAr]=useState("");
+  var [plan,setPlan]=useState("trial");
+  var [err,setErr]=useState("");var [loading,setLoading]=useState(false);
+
+  async function doLogin(){setErr("");setLoading(true);try{var data=await api.login(email,pass);p.onAuth(data.user,data.token);}catch(e){setErr(e.message||"Login failed");}setLoading(false);}
+  async function doRegister(){setErr("");setLoading(true);try{var data=await api.subscribe({email:email,password:pass,name_en:nameEn,company_name_en:coNameEn,company_name_ar:coNameAr,plan:plan});p.onAuth(data.user,data.token);}catch(e){setErr(e.message||"Registration failed");}setLoading(false);}
+
+  var plans=[
+    {id:"trial",n:t("planTrial"),p:0,f:["3 "+t("users"),"10 "+t("empLimit"),"20 "+t("invLimit"),t("features14")]},
+    {id:"starter",n:t("planStarter"),p:9,f:["5 "+t("users"),"25 "+t("empLimit"),"100 "+t("invLimit"),t("vat")+" + "+t("spf")]},
+    {id:"professional",n:t("planPro"),p:25,pop:true,f:["15 "+t("users"),"100 "+t("empLimit"),"500 "+t("invLimit"),t("accounting")+" + "+t("quotations")]},
+    {id:"enterprise",n:t("planEnt"),p:59,f:["50 "+t("users"),"999 "+t("empLimit"),"9999 "+t("invLimit"),t("purchaseOrders")+" + "+t("wps")]},
+  ];
+
+  var features=[
+    {i:ic.file,n:t("invoices"),d:"Create, print, email, duplicate, barcode scanner"},
+    {i:ic.users,n:t("employees"),d:"Full HR + payroll + SPF + Omanization"},
+    {i:ic.dollar,n:t("vatComp"),d:"5% Oman VAT with quarterly returns"},
+    {i:ic.chart,n:t("accounting"),d:"Chart of accounts, journal entries, balance sheet"},
+    {i:ic.globe,n:t("contacts"),d:"Customer & vendor database with aging reports"},
+    {i:ic.clip,n:t("quotations"),d:"Quote → Accept → Convert to invoice"},
+  ];
+
+  if(view==="auth") return <div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:C.bg,fontFamily:"'DM Sans','Segoe UI',sans-serif"}}>
+    <div style={{width:440,maxWidth:"90vw",background:C.card,border:"1px solid "+C.brd,borderRadius:20,padding:40,boxShadow:"0 25px 60px rgba(0,0,0,.5)"}}>
+      <div style={{textAlign:"center",marginBottom:28}}>
+        <div style={{width:56,height:56,borderRadius:16,background:"linear-gradient(135deg,"+C.acc+","+C.accL+")",display:"inline-flex",alignItems:"center",justifyContent:"center",marginBottom:12}}><span style={{fontSize:28,fontWeight:800,color:"#fff"}}>ع</span></div>
+        <h1 style={{fontSize:22,fontWeight:700,color:C.txt,margin:"0 0 4px"}}>Oman SME ERP</h1>
+        <p style={{fontSize:13,color:C.mut,margin:0}}>{mode==="login"?t("signInSub"):t("registerSub")}</p>
+        {plan!=="trial"&&mode==="register"&&<div style={{marginTop:8,padding:"4px 12px",background:C.accG,borderRadius:20,display:"inline-block",fontSize:12,color:C.acc,fontWeight:600}}>{plans.find(function(pp){return pp.id===plan;})?.n} — ${plans.find(function(pp){return pp.id===plan;})?.p}{t("perMonth")}</div>}
+      </div>
+      {err&&<div style={{padding:"10px 14px",background:C.rB,border:"1px solid "+C.rD,borderRadius:8,color:C.r,fontSize:12,marginBottom:14}}>{err}</div>}
+      <div style={{display:"flex",flexDirection:"column",gap:12}}>
+        {mode==="register"&&<Inp label={t("yourName")} value={nameEn} onChange={setNameEn} placeholder="Ahmed Al-Harthi"/>}
+        {mode==="register"&&<Inp label={t("compName")} value={coNameEn} onChange={setCoNameEn} placeholder="Future Tech LLC"/>}
+        {mode==="register"&&<Inp label={t("compNameAr")} value={coNameAr} onChange={setCoNameAr} placeholder="شركة المستقبل"/>}
+        <Inp label={t("email")} value={email} onChange={setEmail} placeholder="admin@company.om" type="email"/>
+        <Inp label="Password" value={pass} onChange={setPass} placeholder="••••••••" type="password"/>
+        <Btn onClick={mode==="login"?doLogin:doRegister} disabled={loading} style={{width:"100%",justifyContent:"center",padding:"12px 20px",fontSize:14}}>
+          <Ic d={ic.lock} s={16} c="#fff"/>{loading?t("saving"):mode==="login"?t("signIn"):t("createAccount")}
+        </Btn>
+      </div>
+      <div style={{textAlign:"center",marginTop:16}}>
+        <button type="button" onClick={function(){setMode(mode==="login"?"register":"login");setErr("");}} style={{background:"none",border:"none",color:C.acc,fontSize:13,cursor:"pointer",fontFamily:"inherit"}}>{mode==="login"?t("noAccount"):t("hasAccount")}</button>
+      </div>
+      <div style={{textAlign:"center",marginTop:8}}><button type="button" onClick={function(){setView("landing");}} style={{background:"none",border:"none",color:C.mut,fontSize:12,cursor:"pointer",fontFamily:"inherit"}}>{t("viewPricing")}</button></div>
+    </div>
+  </div>;
+
+  // ─── LANDING PAGE ───
+  return <div style={{minHeight:"100vh",background:C.bg,fontFamily:"'DM Sans','Segoe UI',sans-serif",color:C.txt}}>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Noto+Sans+Arabic:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+
+    {/* Nav */}
+    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"16px 40px",borderBottom:"1px solid "+C.brd}}>
+      <div style={{display:"flex",alignItems:"center",gap:10}}><div style={{width:36,height:36,borderRadius:10,background:"linear-gradient(135deg,"+C.acc+","+C.accL+")",display:"flex",alignItems:"center",justifyContent:"center"}}><span style={{fontSize:17,fontWeight:800,color:"#fff"}}>ع</span></div><span style={{fontSize:16,fontWeight:800,color:C.txt}}>Oman SME ERP</span></div>
+      <div style={{display:"flex",gap:8}}>
+        <button type="button" onClick={function(){p.setLang(p.lang==="ar"?"en":"ar");}} style={{background:"none",border:"1px solid "+C.brd,borderRadius:8,padding:"6px 12px",color:C.txt,fontSize:12,cursor:"pointer",fontFamily:"inherit"}}>{p.lang==="ar"?"English":"العربية"}</button>
+        <Btn v="secondary" onClick={function(){setView("auth");setMode("login");}}>{t("signIn")}</Btn>
+        <Btn onClick={function(){setView("auth");setMode("register");setPlan("trial");}}>{t("getStarted")}</Btn>
+      </div>
+    </div>
+
+    {/* Hero */}
+    <div style={{textAlign:"center",padding:"80px 40px 60px",maxWidth:700,margin:"0 auto"}}>
+      <h1 style={{fontSize:42,fontWeight:800,color:C.txt,lineHeight:1.2,margin:"0 0 20px"}}>{t("heroTitle")}</h1>
+      <p style={{fontSize:18,color:C.mut,lineHeight:1.6,margin:"0 0 32px"}}>{t("heroSub")}</p>
+      <div style={{display:"flex",gap:12,justifyContent:"center"}}>
+        <Btn onClick={function(){setView("auth");setMode("register");setPlan("trial");}} style={{padding:"14px 32px",fontSize:16}}>{t("getStarted")}</Btn>
+        <Btn v="secondary" onClick={function(){document.getElementById("pricing").scrollIntoView({behavior:"smooth"});}} style={{padding:"14px 32px",fontSize:16}}>{t("viewPricing")}</Btn>
+      </div>
+      <p style={{fontSize:13,color:C.dim,marginTop:16}}>{t("features14")} — {t("noCard")}</p>
+    </div>
+
+    {/* Features */}
+    <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(280px,1fr))",gap:16,padding:"0 40px 60px",maxWidth:1000,margin:"0 auto"}}>
+      {features.map(function(f,i){return <div key={i} style={{background:C.card,border:"1px solid "+C.brd,borderRadius:14,padding:24}}>
+        <div style={{width:40,height:40,borderRadius:10,background:C.accG,display:"flex",alignItems:"center",justifyContent:"center",marginBottom:12}}><Ic d={f.i} s={18} c={C.acc}/></div>
+        <div style={{fontSize:15,fontWeight:700,color:C.txt,marginBottom:6}}>{f.n}</div>
+        <div style={{fontSize:13,color:C.mut,lineHeight:1.5}}>{f.d}</div>
+      </div>;})}
+    </div>
+
+    {/* Pricing */}
+    <div id="pricing" style={{padding:"60px 40px",maxWidth:1100,margin:"0 auto"}}>
+      <h2 style={{fontSize:32,fontWeight:800,color:C.txt,textAlign:"center",margin:"0 0 8px"}}>{t("pricing")}</h2>
+      <p style={{fontSize:15,color:C.mut,textAlign:"center",margin:"0 0 40px"}}>{t("noCard")}</p>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(230px,1fr))",gap:16}}>
+        {plans.map(function(pl){return <div key={pl.id} style={{background:C.card,border:pl.pop?"2px solid "+C.acc:"1px solid "+C.brd,borderRadius:16,padding:28,position:"relative",display:"flex",flexDirection:"column"}}>
+          {pl.pop&&<div style={{position:"absolute",top:-12,left:"50%",transform:"translateX(-50%)",padding:"4px 16px",background:C.acc,borderRadius:20,fontSize:11,fontWeight:700,color:"#fff"}}>{t("popular")}</div>}
+          <div style={{fontSize:18,fontWeight:700,color:C.txt,marginBottom:4}}>{pl.n}</div>
+          <div style={{fontSize:36,fontWeight:800,color:C.acc,marginBottom:4}}>{pl.p===0?t("planTrial"):"$"+pl.p}<span style={{fontSize:14,fontWeight:400,color:C.mut}}>{pl.p>0?t("perMonth"):""}</span></div>
+          <div style={{flex:1,marginBottom:20}}>{pl.f.map(function(feat,fi){return <div key={fi} style={{display:"flex",alignItems:"center",gap:8,padding:"6px 0",fontSize:13,color:C.txt}}><Ic d={ic.check} s={14} c={C.g}/>{feat}</div>;})}</div>
+          <Btn v={pl.pop?"primary":"secondary"} onClick={function(){setPlan(pl.id);setView("auth");setMode("register");}} style={{width:"100%",justifyContent:"center"}}>{t("choosePlan")}</Btn>
+        </div>;})}
+      </div>
+    </div>
+
+    {/* Footer */}
+    <div style={{textAlign:"center",padding:"30px 40px",borderTop:"1px solid "+C.brd,fontSize:12,color:C.dim}}>
+      © {new Date().getFullYear()} Oman SME ERP. {t("appTitle")}
+    </div>
+  </div>;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ONBOARDING WIZARD — First-time setup after registration
+// ═══════════════════════════════════════════════════════════════
+function OnboardingWizard(p){
+  var t=p.t,toast=p.toast;
+  var [step,setStep]=useState(1);var [busy,setBusy]=useState(false);
+  var [coForm,setCoForm]=useState({nameAr:p.co.nameAr||"",nameEn:p.co.nameEn||"",cr:"",taxId:"",address:"",phone:"",email:""});
+  var [empForm,setEmpForm]=useState({name_en:"",name_ar:"",nationality:"Omani",department:"IT & Telecom",role_title_en:"",basic_salary:0});
+  var [prodForm,setProdForm]=useState({name_en:"",barcode:"",unit_price:0,category:""});
+
+  async function saveStep(){
+    setBusy(true);
+    try{
+      if(step===1&&coForm.nameEn){await api.updateCompany(coForm);if(p.setCo)p.setCo(coForm);}
+      if(step===2&&empForm.name_en){await api.createEmployee({nameEn:empForm.name_en,name:empForm.name_ar,nat:empForm.nationality,dept:empForm.department,roleEn:empForm.role_title_en,salary:empForm.basic_salary,allow:0});}
+      if(step===3&&prodForm.name_en){await api.createProduct(prodForm);}
+    }catch(e){toast(e.message,"e");}
+    setBusy(false);
+    if(step<3){setStep(step+1);}else{doFinish();}
+  }
+  async function doFinish(){try{await api.markOnboardingDone();}catch(e){}p.onDone();}
+
+  return <div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:C.bg,fontFamily:"'DM Sans','Segoe UI',sans-serif"}}>
+    <div style={{width:520,maxWidth:"92vw",background:C.card,border:"1px solid "+C.brd,borderRadius:20,padding:40,boxShadow:"0 25px 60px rgba(0,0,0,.5)"}}>
+      <div style={{textAlign:"center",marginBottom:24}}>
+        <div style={{width:56,height:56,borderRadius:16,background:"linear-gradient(135deg,"+C.acc+","+C.accL+")",display:"inline-flex",alignItems:"center",justifyContent:"center",marginBottom:12}}><span style={{fontSize:28,fontWeight:800,color:"#fff"}}>ع</span></div>
+        <h2 style={{fontSize:20,fontWeight:700,color:C.txt,margin:"0 0 4px"}}>{t("setupWizard")}</h2>
+        <p style={{fontSize:13,color:C.mut,margin:0}}>{t("step"+step)} — {step}/3</p>
+      </div>
+
+      {/* Progress */}
+      <div style={{display:"flex",gap:8,marginBottom:28}}>{[1,2,3].map(function(s){return <div key={s} style={{flex:1,height:4,borderRadius:4,background:s<=step?C.acc:C.hov}}></div>;})}</div>
+
+      {step===1&&<div style={{display:"flex",flexDirection:"column",gap:12}}>
+        <Inp label={t("compEn")} value={coForm.nameEn} onChange={function(v){setCoForm(Object.assign({},coForm,{nameEn:v}));}}/>
+        <Inp label={t("compAr")} value={coForm.nameAr} onChange={function(v){setCoForm(Object.assign({},coForm,{nameAr:v}));}}/>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}><Inp label={t("crNo")} value={coForm.cr} onChange={function(v){setCoForm(Object.assign({},coForm,{cr:v}));}}/><Inp label={t("taxId")} value={coForm.taxId} onChange={function(v){setCoForm(Object.assign({},coForm,{taxId:v}));}}/></div>
+        <Inp label={t("address")} value={coForm.address} onChange={function(v){setCoForm(Object.assign({},coForm,{address:v}));}}/>
+        <Inp label={t("phone")} value={coForm.phone} onChange={function(v){setCoForm(Object.assign({},coForm,{phone:v}));}}/>
+      </div>}
+
+      {step===2&&<div style={{display:"flex",flexDirection:"column",gap:12}}>
+        <p style={{fontSize:13,color:C.mut,margin:0}}>{t("step2")} — {t("skip")}?</p>
+        <Inp label={t("nameEn")} value={empForm.name_en} onChange={function(v){setEmpForm(Object.assign({},empForm,{name_en:v}));}}/>
+        <Inp label={t("nameAr")} value={empForm.name_ar} onChange={function(v){setEmpForm(Object.assign({},empForm,{name_ar:v}));}}/>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+          <Inp label={t("department")} value={empForm.department} onChange={function(v){setEmpForm(Object.assign({},empForm,{department:v}));}}/>
+          <Inp label={t("salary")} type="number" value={empForm.basic_salary} onChange={function(v){setEmpForm(Object.assign({},empForm,{basic_salary:Number(v)}));}}/>
+        </div>
+      </div>}
+
+      {step===3&&<div style={{display:"flex",flexDirection:"column",gap:12}}>
+        <p style={{fontSize:13,color:C.mut,margin:0}}>{t("step3")} — {t("skip")}?</p>
+        <Inp label={t("nameEn")} value={prodForm.name_en} onChange={function(v){setProdForm(Object.assign({},prodForm,{name_en:v}));}}/>
+        <Inp label={t("barcode")} value={prodForm.barcode} onChange={function(v){setProdForm(Object.assign({},prodForm,{barcode:v}));}}/>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+          <Inp label={t("unitPrice")} type="number" value={prodForm.unit_price} onChange={function(v){setProdForm(Object.assign({},prodForm,{unit_price:Number(v)}));}}/>
+          <Inp label={t("category")} value={prodForm.category} onChange={function(v){setProdForm(Object.assign({},prodForm,{category:v}));}}/>
+        </div>
+      </div>}
+
+      <div style={{display:"flex",justifyContent:"space-between",marginTop:24}}>
+        <Btn v="ghost" onClick={function(){if(step<3)setStep(step+1);else doFinish();}}>{t("skip")}</Btn>
+        <Btn onClick={saveStep} disabled={busy}>{busy?t("saving"):step===3?t("finish"):t("next")+" →"}</Btn>
+      </div>
+    </div>
+  </div>;
+}
