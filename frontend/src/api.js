@@ -378,3 +378,55 @@ export async function deleteProduct(id) {
 export async function importProducts(items) {
   return req("POST", "/api/products/import", { items: items });
 }
+
+// ═══════════════════════════════════════════════════════════════
+// HIGH-PRIORITY FEATURES
+// ═══════════════════════════════════════════════════════════════
+
+// ─── CHART OF ACCOUNTS ──────────────────────────────────────
+export async function getAccounts() { return req("GET", "/api/accounts"); }
+export async function createAccount(form) { return req("POST", "/api/accounts", form); }
+export async function updateAccount(id, form) { return req("PUT", "/api/accounts/" + id, form); }
+
+// ─── JOURNAL ENTRIES ────────────────────────────────────────
+export async function getJournals() { return req("GET", "/api/journals"); }
+export async function createJournal(form) { return req("POST", "/api/journals", form); }
+export async function postJournal(id) { return req("PATCH", "/api/journals/" + id + "/post", {}); }
+
+// ─── FINANCIAL REPORTS ──────────────────────────────────────
+export async function getBalanceSheet() { return req("GET", "/api/reports/balance-sheet"); }
+export async function getCashFlow() { return req("GET", "/api/reports/cash-flow"); }
+export async function getARaging() { return req("GET", "/api/reports/ar-aging"); }
+export async function getAPaging() { return req("GET", "/api/reports/ap-aging"); }
+
+// ─── CONTACTS ───────────────────────────────────────────────
+export async function getContacts(type) { return req("GET", "/api/contacts" + (type ? "?type=" + type : "")); }
+export async function createContact(form) { return req("POST", "/api/contacts", form); }
+export async function updateContact(id, form) { return req("PUT", "/api/contacts/" + id, form); }
+export async function deleteContact(id) { return req("DELETE", "/api/contacts/" + id); }
+
+// ─── QUOTATIONS ─────────────────────────────────────────────
+export async function getQuotations() { return req("GET", "/api/quotations"); }
+export async function createQuotation(form) { return req("POST", "/api/quotations", form); }
+export async function updateQuotationStatus(id, status) { return req("PATCH", "/api/quotations/" + id + "/status", { status: status }); }
+export async function convertQuotation(id) { return req("POST", "/api/quotations/" + id + "/convert", {}); }
+
+// ─── PURCHASE ORDERS ────────────────────────────────────────
+export async function getPurchaseOrders() { return req("GET", "/api/purchase-orders"); }
+export async function createPurchaseOrder(form) { return req("POST", "/api/purchase-orders", form); }
+export async function updatePOStatus(id, status) { return req("PATCH", "/api/purchase-orders/" + id + "/status", { status: status }); }
+
+// ─── LEAVE MANAGEMENT ───────────────────────────────────────
+export async function getLeaveTypes() { return req("GET", "/api/leave-types"); }
+export async function getLeaves() { return req("GET", "/api/leaves"); }
+export async function createLeave(form) { return req("POST", "/api/leaves", form); }
+export async function updateLeaveStatus(id, status) { return req("PATCH", "/api/leaves/" + id + "/status", { status: status }); }
+
+// ─── ATTENDANCE ─────────────────────────────────────────────
+export async function getAttendance(date) { return req("GET", "/api/attendance?date=" + (date || new Date().toISOString().slice(0,10))); }
+export async function recordAttendance(form) { return req("POST", "/api/attendance", form); }
+export async function bulkAttendance(items) { return req("POST", "/api/attendance/bulk", { items: items }); }
+
+// ─── WPS & STOCK ALERTS ─────────────────────────────────────
+export async function generateWPS() { return req("GET", "/api/wps/generate"); }
+export async function getStockAlerts() { return req("GET", "/api/stock-alerts"); }
