@@ -656,6 +656,13 @@ function SetPage(p){var co=p.co,setCo=p.setCo,t=p.t,toast=p.toast,showExport=p.s
           <Btn v="secondary" onClick={function(){showExport("erp-backup.json",buildJSON({employees:p.emps,invoices:p.invs,expenses:p.exps,settings:form}),"json");}} style={{width:"100%"}}><Ic d={ic.dl} s={14}/> {t("fullBackup")}</Btn>
           <Btn v="secondary" onClick={function(){showExport("employees.csv",buildCSV(["Name","Dept","Salary","Nationality"],p.emps.map(function(e){return[e.nameEn,e.dept,e.salary,e.nat];})),"csv");}} style={{width:"100%"}}><Ic d={ic.users} s={14}/> {t("empCSV")}</Btn>
           <Btn v="secondary" onClick={function(){showExport("invoices.csv",buildCSV(["ID","Client","Total","Status"],p.invs.map(function(i){return[i.id,i.clientEn,iGrand(i).toFixed(3),i.status];})),"csv");}} style={{width:"100%"}}><Ic d={ic.file} s={14}/> {t("invCSV")}</Btn>
+          <Btn v="secondary" onClick={function(){api.getContacts().then(function(d){showExport("contacts.csv",buildCSV(["Name","Type","Email","Phone"],d.map(function(c){return[c.name_en,c.contact_type,c.email||"",c.phone||""];})),"csv");});}} style={{width:"100%"}}><Ic d={ic.globe} s={14}/> {t("contacts")} CSV</Btn>
+          <Btn v="secondary" onClick={function(){api.getQuotations().then(function(d){showExport("quotations.csv",buildCSV(["#","Client","Total","Status"],d.map(function(q){return[q.quote_number,q.client_name,q.total||0,q.status];})),"csv");});}} style={{width:"100%"}}><Ic d={ic.clip} s={14}/> {t("quotations")} CSV</Btn>
+          <Btn v="secondary" onClick={function(){api.getPurchaseOrders().then(function(d){showExport("purchase-orders.csv",buildCSV(["#","Vendor","Total","Status"],d.map(function(po){return[po.po_number,po.vendor_name,po.total||0,po.status];})),"csv");});}} style={{width:"100%"}}><Ic d={ic.wallet} s={14}/> {t("purchaseOrders")} CSV</Btn>
+          <Btn v="secondary" onClick={function(){api.getAccounts().then(function(d){showExport("chart-of-accounts.csv",buildCSV(["Code","Name","Type","Balance"],d.map(function(a){return[a.code,a.name_en,a.account_type,a.balance||0];})),"csv");});}} style={{width:"100%"}}><Ic d={ic.chart} s={14}/> {t("chartOfAccounts")} CSV</Btn>
+          <Btn v="secondary" onClick={function(){api.getJournals().then(function(d){showExport("journals.csv",buildCSV(["#","Date","Description","Posted"],d.map(function(j){return[j.entry_number,j.entry_date,j.description||"",j.is_posted?"Yes":"No"];})),"csv");});}} style={{width:"100%"}}><Ic d={ic.edit} s={14}/> {t("journalEntries")} CSV</Btn>
+          <Btn v="secondary" onClick={function(){api.getLeaves().then(function(d){showExport("leaves.csv",buildCSV(["Employee","Type","From","To","Days","Status"],d.map(function(l){return[l.emp_name,l.leave_type,l.start_date,l.end_date,l.days,l.status];})),"csv");});}} style={{width:"100%"}}><Ic d={ic.flag} s={14}/> {t("leavesMgmt")} CSV</Btn>
+          <Btn v="secondary" onClick={function(){api.getAttendance().then(function(d){showExport("attendance.csv",buildCSV(["Employee","Date","Check In","Check Out","Hours","Status"],d.map(function(a){return[a.emp_name,a.att_date,a.check_in||"",a.check_out||"",a.hours_worked||"",a.status];})),"csv");});}} style={{width:"100%"}}><Ic d={ic.check} s={14}/> {t("attendance")} CSV</Btn>
         </div></div>
       </div>
     </div></div>;}
@@ -687,7 +694,7 @@ function AcctPage(p){var t=p.t,toast=p.toast,showExport=p.showExport;
     <div style={{display:"flex",gap:6,marginBottom:16,flexWrap:"wrap"}}>{tabs.map(function(tb){return <button key={tb.k} type="button" onClick={function(){setTab(tb.k);}} style={{padding:"6px 14px",borderRadius:20,border:"1px solid "+(tab===tb.k?C.acc:C.brd),background:tab===tb.k?C.accG:"transparent",color:tab===tb.k?C.acc:C.mut,fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"inherit"}}>{tb.l}</button>;})}</div>
 
     {tab==="coa"&&<div>
-      <div style={{display:"flex",justifyContent:"flex-end",marginBottom:12}}><Btn onClick={function(){setShowF(true);}}><Ic d={ic.plus} s={14} c="#fff"/> {t("addProduct")}</Btn></div>
+      <div style={{display:"flex",justifyContent:"flex-end",gap:8,marginBottom:12}}><Btn v="secondary" s="sm" onClick={function(){showExport("chart-of-accounts.csv",buildCSV(["Code","Name EN","Name AR","Type","Balance"],accts.map(function(a){return[a.code,a.name_en,a.name_ar||"",a.account_type,a.balance||0];})),"csv");}}><Ic d={ic.dl} s={14}/> {t("export")}</Btn><Btn onClick={function(){setShowF(true);}}><Ic d={ic.plus} s={14} c="#fff"/> {t("create")}</Btn></div>
       <Modal open={showF} onClose={function(){setShowF(false);}} title={t("chartOfAccounts")}>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}><Inp label={t("accountCode")} value={acctForm.code} onChange={function(v){setAcctForm(Object.assign({},acctForm,{code:v}));}}/><Inp label={t("nameEn")} value={acctForm.name_en} onChange={function(v){setAcctForm(Object.assign({},acctForm,{name_en:v}));}}/><Inp label={t("nameAr")} value={acctForm.name_ar} onChange={function(v){setAcctForm(Object.assign({},acctForm,{name_ar:v}));}}/><Sel label={t("accountType")} value={acctForm.account_type} onChange={function(v){setAcctForm(Object.assign({},acctForm,{account_type:v}));}} options={acctTypes.map(function(a){return{v:a,l:a};})}/></div>
         <div style={{display:"flex",justifyContent:"flex-end",gap:8,marginTop:16}}><Btn v="ghost" onClick={function(){setShowF(false);}}>{t("cancel")}</Btn><Btn onClick={saveAcct} disabled={busy}>{busy?t("saving"):t("save")}</Btn></div>
@@ -732,7 +739,7 @@ function AcctPage(p){var t=p.t,toast=p.toast,showExport=p.showExport;
 // CONTACTS PAGE — Customers + Vendors
 // ═══════════════════════════════════════════════════════════════
 function ContactsPage(p){var t=p.t,toast=p.toast,showExport=p.showExport;
-  var [data,setData]=useState([]);var [fil,setFil]=useState("");var [showF,setShowF]=useState(false);var [editC,setEditC]=useState(null);var [busy,setBusy]=useState(false);var [loading,setLoading]=useState(true);
+  var [data,setData]=useState([]);var [fil,setFil]=useState("");var [showF,setShowF]=useState(false);var [editC,setEditC]=useState(null);var [busy,setBusy]=useState(false);var [loading,setLoading]=useState(true);var [showImp,setShowImp]=useState(false);
   var empty={contact_type:"customer",name_en:"",name_ar:"",email:"",phone:"",tax_id:"",address:"",city:"",country:"Oman",credit_limit:0,payment_terms:30,notes:""};
   var [form,setForm]=useState(empty);
 
@@ -743,8 +750,9 @@ function ContactsPage(p){var t=p.t,toast=p.toast,showExport=p.showExport;
   function doExport(){showExport("contacts.csv",buildCSV(["Name","Type","Email","Phone","City"],data.map(function(c){return[c.name_en,c.contact_type,c.email||"",c.phone||"",c.city||""];})),"csv");}
 
   if(loading)return <Spinner/>;
-  return <div><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}><h2 style={{fontSize:22,fontWeight:700,color:C.txt,margin:0}}>{t("contacts")} ({data.length})</h2><div style={{display:"flex",gap:8}}><Btn v="secondary" s="sm" onClick={doExport}><Ic d={ic.dl} s={14}/> {t("export")}</Btn><Btn onClick={function(){setForm(empty);setEditC(null);setShowF(true);}}><Ic d={ic.plus} s={14} c="#fff"/> {t("newContact")}</Btn></div></div>
+  return <div><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}><h2 style={{fontSize:22,fontWeight:700,color:C.txt,margin:0}}>{t("contacts")} ({data.length})</h2><div style={{display:"flex",gap:8}}><Btn v="secondary" s="sm" onClick={doExport}><Ic d={ic.dl} s={14}/> {t("export")}</Btn><Btn v="secondary" s="sm" onClick={function(){setShowImp(true);}}><Ic d={ic.clip} s={14}/> {t("importCSV")}</Btn><Btn onClick={function(){setForm(empty);setEditC(null);setShowF(true);}}><Ic d={ic.plus} s={14} c="#fff"/> {t("newContact")}</Btn></div></div>
     <div style={{display:"flex",gap:6,marginBottom:16}}>{[{k:"",l:t("all")},{k:"customer",l:t("customers")},{k:"vendor",l:t("vendors")}].map(function(f){return <button key={f.k} type="button" onClick={function(){setFil(f.k);}} style={{padding:"6px 14px",borderRadius:20,border:"1px solid "+(fil===f.k?C.acc:C.brd),background:fil===f.k?C.accG:"transparent",color:fil===f.k?C.acc:C.mut,fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"inherit"}}>{f.l}</button>;})}</div>
+    <ImportModal open={showImp} onClose={function(){setShowImp(false);}} t={t} entity="contacts" title={t("contacts")} templateName="contacts-template.csv" colMap={{name_en:"name_en",name_ar:"name_ar",contact_type:"contact_type",email:"email",phone:"phone",city:"city",payment_terms:"payment_terms"}} hint="Columns: name_en, name_ar, contact_type (customer/vendor), email, phone, city, payment_terms" onImport={api.importContacts} onDone={load}/>
     <Modal open={showF} onClose={function(){setShowF(false);}} title={editC?t("editProduct"):t("newContact")} wide>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12}}>
         <Sel label={t("contactType")} value={form.contact_type} onChange={function(v){setForm(Object.assign({},form,{contact_type:v}));}} options={[{v:"customer",l:t("customer")},{v:"vendor",l:t("vendor")},{v:"both",l:t("both")}]}/>
@@ -766,7 +774,7 @@ function ContactsPage(p){var t=p.t,toast=p.toast,showExport=p.showExport;
 // QUOTATIONS PAGE
 // ═══════════════════════════════════════════════════════════════
 function QuotePage(p){var t=p.t,toast=p.toast,showExport=p.showExport;
-  var [data,setData]=useState([]);var [showF,setShowF]=useState(false);var [busy,setBusy]=useState(false);var [loading,setLoading]=useState(true);
+  var [data,setData]=useState([]);var [showF,setShowF]=useState(false);var [busy,setBusy]=useState(false);var [loading,setLoading]=useState(true);var [showImp,setShowImp]=useState(false);
   var [form,setForm]=useState({client_name:"",notes:"",items:[{description_en:"",quantity:1,unit_price:0}]});
 
   useEffect(function(){load();},[]);
@@ -777,7 +785,8 @@ function QuotePage(p){var t=p.t,toast=p.toast,showExport=p.showExport;
   function qTotal(q){return (q.items||[]).reduce(function(s,i){return s+(parseFloat(i.quantity)||0)*(parseFloat(i.unit_price)||0);},0);}
 
   if(loading)return <Spinner/>;
-  return <div><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}><h2 style={{fontSize:22,fontWeight:700,color:C.txt,margin:0}}>{t("quotations")} ({data.length})</h2><Btn onClick={function(){setShowF(true);}}><Ic d={ic.plus} s={14} c="#fff"/> {t("newQuotation")}</Btn></div>
+  return <div><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}><h2 style={{fontSize:22,fontWeight:700,color:C.txt,margin:0}}>{t("quotations")} ({data.length})</h2><Btn v="secondary" s="sm" onClick={function(){showExport("quotations.csv",buildCSV(["#","Client","Date","Total","Status"],data.map(function(q){return[q.quote_number,q.client_name,q.issue_date,q.total||0,q.status];})),"csv");}}><Ic d={ic.dl} s={14}/> {t("export")}</Btn><Btn v="secondary" s="sm" onClick={function(){setShowImp(true);}}><Ic d={ic.clip} s={14}/> {t("importCSV")}</Btn><Btn onClick={function(){setShowF(true);}}><Ic d={ic.plus} s={14} c="#fff"/> {t("newQuotation")}</Btn></div>
+    <ImportModal open={showImp} onClose={function(){setShowImp(false);}} t={t} entity="quotations" title={t("quotations")} templateName="quotations-template.csv" colMap={{client_name:"client_name",subtotal:"subtotal"}} hint="Columns: client_name, subtotal" onImport={api.importQuotations} onDone={load}/>
     <Modal open={showF} onClose={function(){setShowF(false);}} title={t("newQuotation")} wide>
       <Inp label={t("client")} value={form.client_name} onChange={function(v){setForm(Object.assign({},form,{client_name:v}));}} style={{marginBottom:12}}/>
       {form.items.map(function(item,idx){return <div key={idx} style={{display:"grid",gridTemplateColumns:"3fr 80px 120px",gap:8,marginBottom:4}}><Inp label={idx===0?t("description"):""} value={item.description_en} onChange={function(v){var items=form.items.slice();items[idx]=Object.assign({},items[idx],{description_en:v});setForm(Object.assign({},form,{items:items}));}}/><Inp label={idx===0?t("qty"):""} type="number" value={item.quantity} onChange={function(v){var items=form.items.slice();items[idx]=Object.assign({},items[idx],{quantity:Number(v)});setForm(Object.assign({},form,{items:items}));}}/><Inp label={idx===0?t("price"):""} type="number" value={item.unit_price} onChange={function(v){var items=form.items.slice();items[idx]=Object.assign({},items[idx],{unit_price:Number(v)});setForm(Object.assign({},form,{items:items}));}}/></div>;})}
@@ -790,7 +799,7 @@ function QuotePage(p){var t=p.t,toast=p.toast,showExport=p.showExport;
 // PURCHASE ORDERS PAGE
 // ═══════════════════════════════════════════════════════════════
 function POPage(p){var t=p.t,toast=p.toast,showExport=p.showExport;
-  var [data,setData]=useState([]);var [showF,setShowF]=useState(false);var [busy,setBusy]=useState(false);var [loading,setLoading]=useState(true);
+  var [data,setData]=useState([]);var [showF,setShowF]=useState(false);var [busy,setBusy]=useState(false);var [loading,setLoading]=useState(true);var [showImp,setShowImp]=useState(false);
   var [form,setForm]=useState({vendor_name:"",notes:"",items:[{description_en:"",quantity:1,unit_price:0}]});
 
   useEffect(function(){load();},[]);
@@ -799,7 +808,8 @@ function POPage(p){var t=p.t,toast=p.toast,showExport=p.showExport;
   async function doStatus(po,st){try{await api.updatePOStatus(po.id,st);await load();toast(t("status")+" → "+st);}catch(e){toast(e.message,"e");}}
 
   if(loading)return <Spinner/>;
-  return <div><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}><h2 style={{fontSize:22,fontWeight:700,color:C.txt,margin:0}}>{t("purchaseOrders")} ({data.length})</h2><Btn onClick={function(){setShowF(true);}}><Ic d={ic.plus} s={14} c="#fff"/> {t("newPO")}</Btn></div>
+  return <div><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}><h2 style={{fontSize:22,fontWeight:700,color:C.txt,margin:0}}>{t("purchaseOrders")} ({data.length})</h2><Btn v="secondary" s="sm" onClick={function(){showExport("purchase-orders.csv",buildCSV(["#","Vendor","Date","Total","Status"],data.map(function(po){return[po.po_number,po.vendor_name,po.order_date,po.total||0,po.status];})),"csv");}}><Ic d={ic.dl} s={14}/> {t("export")}</Btn><Btn v="secondary" s="sm" onClick={function(){setShowImp(true);}}><Ic d={ic.clip} s={14}/> {t("importCSV")}</Btn><Btn onClick={function(){setShowF(true);}}><Ic d={ic.plus} s={14} c="#fff"/> {t("newPO")}</Btn></div>
+    <ImportModal open={showImp} onClose={function(){setShowImp(false);}} t={t} entity="pos" title={t("purchaseOrders")} templateName="purchase-orders-template.csv" colMap={{vendor_name:"vendor_name",subtotal:"subtotal"}} hint="Columns: vendor_name, subtotal" onImport={api.importPurchaseOrders} onDone={load}/>
     <Modal open={showF} onClose={function(){setShowF(false);}} title={t("newPO")} wide>
       <Inp label={t("vendorName")} value={form.vendor_name} onChange={function(v){setForm(Object.assign({},form,{vendor_name:v}));}} style={{marginBottom:12}}/>
       {form.items.map(function(item,idx){return <div key={idx} style={{display:"grid",gridTemplateColumns:"3fr 80px 120px",gap:8,marginBottom:4}}><Inp label={idx===0?t("description"):""} value={item.description_en} onChange={function(v){var items=form.items.slice();items[idx]=Object.assign({},items[idx],{description_en:v});setForm(Object.assign({},form,{items:items}));}}/><Inp label={idx===0?t("qty"):""} type="number" value={item.quantity} onChange={function(v){var items=form.items.slice();items[idx]=Object.assign({},items[idx],{quantity:Number(v)});setForm(Object.assign({},form,{items:items}));}}/><Inp label={idx===0?t("price"):""} type="number" value={item.unit_price} onChange={function(v){var items=form.items.slice();items[idx]=Object.assign({},items[idx],{unit_price:Number(v)});setForm(Object.assign({},form,{items:items}));}}/></div>;})}
@@ -834,7 +844,7 @@ function LeavesPage(p){var emps=p.emps,t=p.t,toast=p.toast,showExport=p.showExpo
     <div style={{display:"flex",gap:6,marginBottom:16}}>{[{k:"leaves",l:t("leavesMgmt")},{k:"attendance",l:t("attendance")}].map(function(tb){return <button key={tb.k} type="button" onClick={function(){setTab(tb.k);}} style={{padding:"6px 14px",borderRadius:20,border:"1px solid "+(tab===tb.k?C.acc:C.brd),background:tab===tb.k?C.accG:"transparent",color:tab===tb.k?C.acc:C.mut,fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"inherit"}}>{tb.l}</button>;})}</div>
 
     {tab==="leaves"&&<div>
-      <div style={{display:"flex",justifyContent:"flex-end",marginBottom:12}}><Btn onClick={function(){setShowF(true);}}><Ic d={ic.plus} s={14} c="#fff"/> {t("newLeave")}</Btn></div>
+      <div style={{display:"flex",justifyContent:"flex-end",gap:8,marginBottom:12}}><Btn v="secondary" s="sm" onClick={function(){showExport("leaves.csv",buildCSV(["Employee","Type","From","To","Days","Status"],leaves.map(function(l){return[l.emp_name,l.leave_type,l.start_date,l.end_date,l.days,l.status];})),"csv");}}><Ic d={ic.dl} s={14}/> {t("export")}</Btn><Btn onClick={function(){setShowF(true);}}><Ic d={ic.plus} s={14} c="#fff"/> {t("newLeave")}</Btn></div>
       <Modal open={showF} onClose={function(){setShowF(false);}} title={t("newLeave")}>
         <div style={{display:"flex",flexDirection:"column",gap:12}}>
           <Sel label={t("employees")} value={form.employee_id} onChange={function(v){setForm(Object.assign({},form,{employee_id:v}));}} options={[{v:"",l:"—"}].concat(emps.map(function(e){return{v:e.id,l:e.nameEn};}))}/>
