@@ -430,3 +430,9 @@ export async function bulkAttendance(items) { return req("POST", "/api/attendanc
 // ─── WPS & STOCK ALERTS ─────────────────────────────────────
 export async function generateWPS() { return req("GET", "/api/wps/generate"); }
 export async function getStockAlerts() { return req("GET", "/api/stock-alerts"); }
+
+// ─── BULK IMPORTS FOR NEW ENTITIES ──────────────────────────
+export async function importContacts(items) { return req("POST", "/api/contacts/import", { items: items }); }
+export async function importQuotations(items) { return req("POST", "/api/quotations/import", { items: items }); }
+export async function importPurchaseOrders(items) { return req("POST", "/api/purchase-orders/import", { items: items }); }
+export async function importLeaves(items) { return req("POST", "/api/leaves/import", { items: items }); }
