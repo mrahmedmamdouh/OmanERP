@@ -208,6 +208,36 @@ app.post('/api/employees', auth(['owner','admin','hr']), async (req, res) => {
   res.status(201).json(rows[0]);
 });
 
+// Bulk import employees from CSV
+app.post('/api/employees/import', auth(['owner','admin','hr']), async (req, res) => {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const items = req.body.items || [];
+    if (items.length === 0) return res.status(400).json({ error: 'No data to import' });
+    if (items.length > 500) return res.status(400).json({ error: 'Max 500 rows per import' });
+    let created = 0;
+    for (const b of items) {
+      if (!b.name_en) continue;
+      const id = uuidv4();
+      const spf = (b.nationality||'').toLowerCase() === 'omani' ? 'SPF-' + Date.now().toString().slice(-6) + created : null;
+      await client.query(
+        `INSERT INTO employees (id, company_id, name_ar, name_en, nationality, department, role_title_en, basic_salary, allowances, email, join_date, spf_number)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)`,
+        [id, req.user.company_id, b.name_ar||'', b.name_en, b.nationality||'Other', b.department||'General Trading', b.role_title_en||'', parseFloat(b.basic_salary)||0, parseFloat(b.allowances)||0, b.email||'', b.join_date||new Date(), spf]
+      );
+      created++;
+    }
+    await client.query('COMMIT');
+    await audit(req.user.company_id, req.user.id, 'import', 'employee', null, { count: created }, req.ip);
+    res.status(201).json({ success: true, imported: created });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('[EMP IMPORT ERROR]', err.message);
+    res.status(500).json({ error: 'Import failed: ' + err.message });
+  } finally { client.release(); }
+});
+
 app.put('/api/employees/:id', auth(['owner','admin','hr']), async (req, res) => {
   try {
     if (!isUUID(req.params.id)) return res.status(400).json({ error: 'Invalid employee ID format' });
@@ -325,6 +355,75 @@ app.delete('/api/invoices/:id', auth(['owner','admin']), async (req, res) => {
   }
 });
 
+// Bulk import invoices from CSV
+app.post('/api/invoices/import', auth(['owner','admin','accountant']), async (req, res) => {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const items = req.body.items || [];
+    if (items.length === 0) return res.status(400).json({ error: 'No data to import' });
+    let created = 0;
+    for (const b of items) {
+      if (!b.client_name_en) continue;
+      const id = uuidv4();
+      const { rows: seqRows } = await client.query(
+        "SELECT COALESCE(MAX(CAST(SUBSTRING(invoice_number FROM '[0-9]+$') AS INTEGER)), 0) + 1 as next_num FROM invoices WHERE company_id = $1",
+        [req.user.company_id]
+      );
+      const invNum = 'INV-' + new Date().getFullYear() + '-' + String(seqRows[0].next_num).padStart(4, '0');
+      await client.query(
+        `INSERT INTO invoices (id, company_id, invoice_number, client_name_en, client_name_ar, issue_date, due_date, subtotal, vat_amount, total, status, created_by)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)`,
+        [id, req.user.company_id, invNum, b.client_name_en, b.client_name_ar||'', b.issue_date||new Date(), b.due_date||new Date(Date.now()+30*864e5), parseFloat(b.subtotal)||0, (parseFloat(b.subtotal)||0)*0.05, (parseFloat(b.subtotal)||0)*1.05, b.status||'pending', req.user.id]
+      );
+      created++;
+    }
+    await client.query('COMMIT');
+    res.status(201).json({ success: true, imported: created });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    res.status(500).json({ error: 'Import failed: ' + err.message });
+  } finally { client.release(); }
+});
+
+// Duplicate an existing invoice
+app.post('/api/invoices/:id/duplicate', auth(['owner','admin','accountant']), async (req, res) => {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const realId = await resolveInvoiceId(req.params.id, req.user.company_id);
+    if (!realId) return res.status(404).json({ error: 'Invoice not found' });
+    const { rows: orig } = await client.query('SELECT * FROM invoices WHERE id=$1', [realId]);
+    if (orig.length === 0) return res.status(404).json({ error: 'Not found' });
+    const inv = orig[0];
+    const newId = uuidv4();
+    const { rows: seqRows } = await client.query(
+      "SELECT COALESCE(MAX(CAST(SUBSTRING(invoice_number FROM '[0-9]+$') AS INTEGER)), 0) + 1 as next_num FROM invoices WHERE company_id = $1",
+      [req.user.company_id]
+    );
+    const invNum = 'INV-' + new Date().getFullYear() + '-' + String(seqRows[0].next_num).padStart(4, '0');
+    await client.query(
+      `INSERT INTO invoices (id, company_id, invoice_number, client_name_ar, client_name_en, client_tax_id, issue_date, due_date, currency, status, notes, created_by)
+       VALUES ($1,$2,$3,$4,$5,$6,CURRENT_DATE,CURRENT_DATE+30,$7,'draft',$8,$9)`,
+      [newId, req.user.company_id, invNum, inv.client_name_ar, inv.client_name_en, inv.client_tax_id, inv.currency, inv.notes, req.user.id]
+    );
+    // Copy line items
+    const { rows: items } = await client.query('SELECT * FROM invoice_items WHERE invoice_id=$1', [realId]);
+    for (const item of items) {
+      await client.query(
+        'INSERT INTO invoice_items (invoice_id, description_ar, description_en, quantity, unit_price, sort_order) VALUES ($1,$2,$3,$4,$5,$6)',
+        [newId, item.description_ar, item.description_en, item.quantity, item.unit_price, item.sort_order]
+      );
+    }
+    await client.query('COMMIT');
+    const { rows: result } = await pool.query('SELECT * FROM invoices WHERE id=$1', [newId]);
+    res.status(201).json(result[0]);
+  } catch (err) {
+    await client.query('ROLLBACK');
+    res.status(500).json({ error: err.message });
+  } finally { client.release(); }
+});
+
 // ═══════════════════════════════════════════════════════════════
 // EXPENSES CRUD
 // ═══════════════════════════════════════════════════════════════
@@ -353,6 +452,33 @@ app.delete('/api/expenses/:id', auth(['owner','admin','accountant']), async (req
     console.error('[EXP DELETE ERROR]', err.message);
     res.status(500).json({ error: err.message });
   }
+});
+
+// Bulk import expenses from CSV
+app.post('/api/expenses/import', auth(['owner','admin','accountant']), async (req, res) => {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const items = req.body.items || [];
+    if (items.length === 0) return res.status(400).json({ error: 'No data to import' });
+    let created = 0;
+    for (const b of items) {
+      if (!b.description_en) continue;
+      const id = uuidv4();
+      const cats = ['rent','utilities','supplies','insurance','travel','marketing','other'];
+      const cat = cats.includes(b.category) ? b.category : 'other';
+      await client.query(
+        'INSERT INTO expenses (id, company_id, description_en, amount, category, vendor, expense_date, vat_included, created_by) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)',
+        [id, req.user.company_id, b.description_en, parseFloat(b.amount)||0, cat, b.vendor||'', b.expense_date||new Date(), b.vat_included==='true'||b.vat_included===true, req.user.id]
+      );
+      created++;
+    }
+    await client.query('COMMIT');
+    res.status(201).json({ success: true, imported: created });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    res.status(500).json({ error: 'Import failed: ' + err.message });
+  } finally { client.release(); }
 });
 
 // ═══════════════════════════════════════════════════════════════
