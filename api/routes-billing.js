@@ -145,6 +145,115 @@ app.get('/api/billing/payments', auth(), async (req, res) => {
   } catch (err) { res.json([]); }
 });
 
+// ─── THAWANI PAYMENT (Oman local gateway) ───────────────────
+// Env vars needed: THAWANI_SECRET_KEY, THAWANI_PUBLISHABLE_KEY, THAWANI_MODE (test|live)
+app.post('/api/billing/pay/thawani', auth(['owner']), async (req, res) => {
+  try {
+    const { plan } = req.body;
+    if (!PLANS[plan] || plan === 'trial') return res.status(400).json({ error: 'Invalid plan' });
+    const p = PLANS[plan];
+    const thawaniKey = process.env.THAWANI_SECRET_KEY;
+    if (!thawaniKey) return res.status(500).json({ error: 'Thawani not configured. Set THAWANI_SECRET_KEY in environment.' });
+    const isTest = (process.env.THAWANI_MODE || 'test') === 'test';
+    const baseUrl = isTest ? 'https://uatcheckout.thawani.om' : 'https://checkout.thawani.om';
+    const frontendUrl = process.env.FRONTEND_URL || 'https://oman-erp.vercel.app';
+    const fetch = (await import('node-fetch')).default;
+    const sessionRes = await fetch(baseUrl + '/api/v1/checkout/session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'thawani-api-key': thawaniKey },
+      body: JSON.stringify({
+        client_reference_id: req.user.company_id,
+        mode: 'payment',
+        products: [{ name: 'Oman ERP — ' + p.label + ' (Annual)', quantity: 1, unit_amount: Math.round(p.price * 12 * 1000) }],
+        success_url: frontendUrl + '/?payment=success&plan=' + plan,
+        cancel_url: frontendUrl + '/?payment=cancelled',
+        metadata: { company_id: req.user.company_id, plan: plan, user_id: req.user.id },
+      }),
+    });
+    const sessionData = await sessionRes.json();
+    if (!sessionData.data || !sessionData.data.session_id) {
+      return res.status(500).json({ error: 'Thawani session failed', details: sessionData });
+    }
+    const pubKey = process.env.THAWANI_PUBLISHABLE_KEY || '';
+    const checkoutUrl = baseUrl + '/pay/' + sessionData.data.session_id + '?key=' + pubKey;
+    res.json({ checkout_url: checkoutUrl, session_id: sessionData.data.session_id, gateway: 'thawani' });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// Thawani payment verification (called from frontend after redirect)
+app.post('/api/billing/verify/thawani', auth(['owner']), async (req, res) => {
+  try {
+    const { session_id, plan } = req.body;
+    if (!session_id || !plan) return res.status(400).json({ error: 'Missing session_id or plan' });
+    const thawaniKey = process.env.THAWANI_SECRET_KEY;
+    if (!thawaniKey) return res.status(500).json({ error: 'Thawani not configured' });
+    const isTest = (process.env.THAWANI_MODE || 'test') === 'test';
+    const baseUrl = isTest ? 'https://uatcheckout.thawani.om' : 'https://checkout.thawani.om';
+    const fetch = (await import('node-fetch')).default;
+    const verifyRes = await fetch(baseUrl + '/api/v1/checkout/session/' + session_id, {
+      headers: { 'thawani-api-key': thawaniKey },
+    });
+    const verifyData = await verifyRes.json();
+    if (verifyData.data && verifyData.data.payment_status === 'paid') {
+      const p = PLANS[plan];
+      const expires = new Date(Date.now() + 365 * 864e5);
+      await pool.query('UPDATE companies SET plan=$1, plan_expires_at=$2, max_users=$3, max_employees=$4, max_invoices_month=$5 WHERE id=$6',
+        [plan, expires, p.users, p.employees, p.invoices, req.user.company_id]);
+      await pool.query('INSERT INTO payments (company_id,amount,currency,payment_method,stripe_payment_id,plan,period_start,period_end) VALUES ($1,$2,$3,$4,$5,$6,CURRENT_DATE,$7)',
+        [req.user.company_id, p.price * 12, 'OMR', 'thawani', session_id, plan, expires]);
+      return res.json({ success: true, plan, expires });
+    }
+    res.status(400).json({ error: 'Payment not confirmed', status: verifyData.data?.payment_status });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// ─── STRIPE PAYMENT (international) ─────────────────────────
+// Env vars needed: STRIPE_SECRET_KEY
+app.post('/api/billing/pay/stripe', auth(['owner']), async (req, res) => {
+  try {
+    const { plan } = req.body;
+    if (!PLANS[plan] || plan === 'trial') return res.status(400).json({ error: 'Invalid plan' });
+    const p = PLANS[plan];
+    const stripeKey = process.env.STRIPE_SECRET_KEY;
+    if (!stripeKey) return res.status(500).json({ error: 'Stripe not configured. Set STRIPE_SECRET_KEY in environment.' });
+    const stripe = require('stripe')(stripeKey);
+    const frontendUrl = process.env.FRONTEND_URL || 'https://oman-erp.vercel.app';
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: [{
+        price_data: { currency: 'usd', product_data: { name: 'Oman ERP — ' + p.label + ' (Annual)' }, unit_amount: Math.round(p.price * 12 * 100) },
+        quantity: 1,
+      }],
+      mode: 'payment',
+      success_url: frontendUrl + '/?payment=success&plan=' + plan + '&session_id={CHECKOUT_SESSION_ID}',
+      cancel_url: frontendUrl + '/?payment=cancelled',
+      metadata: { company_id: req.user.company_id, plan: plan },
+    });
+    res.json({ checkout_url: session.url, session_id: session.id, gateway: 'stripe' });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// Stripe payment verification
+app.post('/api/billing/verify/stripe', auth(['owner']), async (req, res) => {
+  try {
+    const { session_id, plan } = req.body;
+    const stripeKey = process.env.STRIPE_SECRET_KEY;
+    if (!stripeKey) return res.status(500).json({ error: 'Stripe not configured' });
+    const stripe = require('stripe')(stripeKey);
+    const session = await stripe.checkout.sessions.retrieve(session_id);
+    if (session.payment_status === 'paid') {
+      const p = PLANS[plan];
+      const expires = new Date(Date.now() + 365 * 864e5);
+      await pool.query('UPDATE companies SET plan=$1, plan_expires_at=$2, max_users=$3, max_employees=$4, max_invoices_month=$5 WHERE id=$6',
+        [plan, expires, p.users, p.employees, p.invoices, req.user.company_id]);
+      await pool.query('INSERT INTO payments (company_id,amount,currency,payment_method,stripe_payment_id,plan,period_start,period_end) VALUES ($1,$2,$3,$4,$5,$6,CURRENT_DATE,$7)',
+        [req.user.company_id, p.price * 12, 'USD', 'stripe', session_id, plan, expires]);
+      return res.json({ success: true, plan, expires });
+    }
+    res.status(400).json({ error: 'Payment not confirmed', status: session.payment_status });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 // Plan enforcement middleware helper (call from other routes)
 app.planCheck = async function(companyId, resource) {
   const { rows } = await pool.query('SELECT plan, plan_expires_at, max_users, max_employees, max_invoices_month FROM companies WHERE id=$1', [companyId]);
