@@ -800,6 +800,15 @@ try {
   console.warn('[ERP API] High-priority routes not loaded:', err.message);
 }
 
+// ─── SAAS BILLING ROUTES ────────────────────────────────────
+try {
+  const registerBillingRoutes = require('./routes-billing.js');
+  registerBillingRoutes(app, pool, auth, isUUID, uuidv4, bcrypt, jwt);
+  console.log('[ERP API] Billing routes loaded');
+} catch (err) {
+  console.warn('[ERP API] Billing routes not loaded:', err.message);
+}
+
 // ─── HEALTH CHECK ───────────────────────────────────────────
 app.get('/api/health', async (req, res) => {
   try {
