@@ -217,7 +217,25 @@ export default function App(){
   async function reloadExps(){try{setExps(await api.getExpenses());}catch(e){}}
 
   // ─── Search results (must be before any conditional return) ───
-  var sr=useMemo(function(){if(!searchQ.trim())return[];var q=searchQ.toLowerCase(),r=[];emps.forEach(function(e){if(e.nameEn.toLowerCase().indexOf(q)>=0)r.push({l:e.nameEn,s:e.roleEn,p:"employees"});});invs.forEach(function(inv){if(inv.id.toLowerCase().indexOf(q)>=0||inv.clientEn.toLowerCase().indexOf(q)>=0)r.push({l:inv.id,s:inv.clientEn,p:"invoices"});});return r.slice(0,5);},[searchQ,emps,invs]);
+  var sr=useMemo(function(){
+    if(!searchQ.trim())return[];
+    var q=searchQ.toLowerCase(),r=[];
+    emps.forEach(function(e){
+      var name=(e.nameEn||"").toLowerCase();
+      var nameA=(e.name||"").toLowerCase();
+      var dept=(e.dept||"").toLowerCase();
+      if(name.indexOf(q)>=0||nameA.indexOf(q)>=0||dept.indexOf(q)>=0)
+        r.push({l:e.nameEn||e.name,s:(e.roleEn||"")+" — "+(e.dept||""),p:"employees"});
+    });
+    invs.forEach(function(inv){
+      var id=(inv.id||"").toLowerCase();
+      var cl=(inv.clientEn||"").toLowerCase();
+      var clA=(inv.client||"").toLowerCase();
+      if(id.indexOf(q)>=0||cl.indexOf(q)>=0||clA.indexOf(q)>=0)
+        r.push({l:inv.id||"",s:inv.clientEn||inv.client||"",p:"invoices"});
+    });
+    return r.slice(0,8);
+  },[searchQ,emps,invs]);
 
   // ─── Check auth on mount ───
   useEffect(function(){
@@ -300,7 +318,7 @@ export default function App(){
       <div style={{padding:"10px 24px",borderBottom:"1px solid "+C.brd,display:"flex",alignItems:"center",justifyContent:"space-between",background:C.bg2,flexShrink:0}}>
         <div style={{display:"flex",alignItems:"center",gap:12}}>
           <button type="button" onClick={function(){setCol(!col);}} style={{background:"none",border:"none",cursor:"pointer",padding:4,color:C.mut}}><Ic d={ic.menu} s={18}/></button>
-          <div style={{position:"relative"}}><div style={{display:"flex",alignItems:"center",gap:6,padding:"6px 12px",background:C.inp,borderRadius:8,border:"1px solid "+(searchOpen?C.acc:C.brd),width:260}}><Ic d={ic.search} s={14} c={C.dim}/><input value={searchQ} onChange={function(e){setSearchQ(e.target.value);setSearchOpen(true);}} onFocus={function(){setSearchOpen(true);}} onBlur={function(){setTimeout(function(){setSearchOpen(false);},200);}} placeholder="Search..." style={{background:"none",border:"none",color:C.txt,fontSize:13,fontFamily:"inherit",outline:"none",width:"100%"}}/></div>
+          <div style={{position:"relative"}}><div style={{display:"flex",alignItems:"center",gap:6,padding:"6px 12px",background:C.inp,borderRadius:8,border:"1px solid "+(searchOpen?C.acc:C.brd),width:260}}><Ic d={ic.search} s={14} c={C.dim}/><input value={searchQ} onChange={function(e){setSearchQ(e.target.value);setSearchOpen(true);}} onFocus={function(){setSearchOpen(true);}} onBlur={function(){setTimeout(function(){setSearchOpen(false);},200);}} placeholder={t("search")} style={{background:"none",border:"none",color:C.txt,fontSize:13,fontFamily:"inherit",outline:"none",width:"100%"}}/></div>
             {searchOpen&&sr.length>0&&<div style={{position:"absolute",top:"100%",left:0,right:0,marginTop:4,background:C.card,border:"1px solid "+C.brd,borderRadius:10,boxShadow:"0 12px 32px rgba(0,0,0,.4)",zIndex:100}}>{sr.map(function(r,i){return <button key={i} type="button" onMouseDown={function(){setPage(r.p);setSearchQ("");setSearchOpen(false);}} style={{width:"100%",display:"flex",alignItems:"center",gap:10,padding:"10px 14px",background:"transparent",border:"none",borderBottom:"1px solid "+C.brd,color:C.txt,fontSize:13,cursor:"pointer",fontFamily:"inherit",textAlign:"left"}}><div><div style={{fontWeight:600}}>{r.l}</div><div style={{fontSize:11,color:C.mut}}>{r.s}</div></div></button>;})}</div>}
           </div>
         </div>
