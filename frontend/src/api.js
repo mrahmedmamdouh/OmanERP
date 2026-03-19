@@ -436,3 +436,15 @@ export async function importContacts(items) { return req("POST", "/api/contacts/
 export async function importQuotations(items) { return req("POST", "/api/quotations/import", { items: items }); }
 export async function importPurchaseOrders(items) { return req("POST", "/api/purchase-orders/import", { items: items }); }
 export async function importLeaves(items) { return req("POST", "/api/leaves/import", { items: items }); }
+
+// ─── SAAS BILLING ───────────────────────────────────────────
+export async function getPlans() { return req("GET", "/api/plans"); }
+export async function subscribe(form) {
+  var data = await req("POST", "/api/subscribe", form);
+  if (data.token) setToken(data.token);
+  return data;
+}
+export async function getBilling() { return req("GET", "/api/billing"); }
+export async function upgradePlan(plan, paymentRef) { return req("POST", "/api/billing/upgrade", { plan: plan, payment_ref: paymentRef }); }
+export async function markOnboardingDone() { return req("POST", "/api/billing/onboarding-done", {}); }
+export async function getPaymentHistory() { return req("GET", "/api/billing/payments"); }
