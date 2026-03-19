@@ -791,6 +791,15 @@ app.patch('/api/notifications/read', auth(), async (req, res) => {
   res.json({ success: true });
 });
 
+// ─── HIGH-PRIORITY FEATURE ROUTES ───────────────────────────
+try {
+  const registerHighPriorityRoutes = require('./routes-high-priority.js');
+  registerHighPriorityRoutes(app, pool, auth, audit, isUUID, uuidv4);
+  console.log('[ERP API] High-priority routes loaded');
+} catch (err) {
+  console.warn('[ERP API] High-priority routes not loaded:', err.message);
+}
+
 // ─── HEALTH CHECK ───────────────────────────────────────────
 app.get('/api/health', async (req, res) => {
   try {
