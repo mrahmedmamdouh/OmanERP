@@ -448,3 +448,7 @@ export async function getBilling() { return req("GET", "/api/billing"); }
 export async function upgradePlan(plan, paymentRef) { return req("POST", "/api/billing/upgrade", { plan: plan, payment_ref: paymentRef }); }
 export async function markOnboardingDone() { return req("POST", "/api/billing/onboarding-done", {}); }
 export async function getPaymentHistory() { return req("GET", "/api/billing/payments"); }
+export async function payThawani(plan) { return req("POST", "/api/billing/pay/thawani", { plan: plan }); }
+export async function verifyThawani(sessionId, plan) { return req("POST", "/api/billing/verify/thawani", { session_id: sessionId, plan: plan }); }
+export async function payStripe(plan) { return req("POST", "/api/billing/pay/stripe", { plan: plan }); }
+export async function verifyStripe(sessionId, plan) { return req("POST", "/api/billing/verify/stripe", { session_id: sessionId, plan: plan }); }
