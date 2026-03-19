@@ -349,3 +349,32 @@ export async function importExpenses(items) {
 export async function duplicateInvoice(idOrNumber) {
   return req("POST", "/api/invoices/" + idOrNumber + "/duplicate", {});
 }
+
+// ─── PRODUCTS CATALOG ───────────────────────────────────────
+export async function getProducts() {
+  return req("GET", "/api/products");
+}
+
+export async function lookupBarcode(code) {
+  return req("GET", "/api/products/barcode/" + encodeURIComponent(code));
+}
+
+export async function searchProducts(q) {
+  return req("GET", "/api/products/search?q=" + encodeURIComponent(q));
+}
+
+export async function createProduct(form) {
+  return req("POST", "/api/products", form);
+}
+
+export async function updateProduct(id, form) {
+  return req("PUT", "/api/products/" + id, form);
+}
+
+export async function deleteProduct(id) {
+  return req("DELETE", "/api/products/" + id);
+}
+
+export async function importProducts(items) {
+  return req("POST", "/api/products/import", { items: items });
+}
